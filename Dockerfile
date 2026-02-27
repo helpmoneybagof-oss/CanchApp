@@ -1,86 +1,60 @@
 # ============================================================
-# Stage 1: PHP + Node — build frontend assets (needs PHP for wayfinder)
+# CanchApp — Railway deployment
 # ============================================================
-FROM php:8.2-fpm AS php-base
+FROM php:8.2-bullseye
 
-# Install system dependencies
-RUN apt-get update && apt-get install -y --no-install-recommends \
-    nginx \
-    supervisor \
-    curl \
-    zip \
-    unzip \
-    default-mysql-client \
-    libpng-dev \
-    libjpeg-dev \
-    libfreetype6-dev \
-    libzip-dev \
+# Install system dependencies and PHP extensions
+RUN apt-get update --fix-missing && apt-get install -y --no-install-recommends \
+    git curl zip unzip \
+    libzip-dev libxml2-dev libonig-dev \
+    libpng-dev libjpeg-dev libfreetype6-dev \
     libicu-dev \
-    libonig-dev \
     && docker-php-ext-configure gd --with-freetype --with-jpeg \
-    && docker-php-ext-install -j$(nproc) \
-        pdo_mysql \
-        mbstring \
-        exif \
-        pcntl \
-        bcmath \
-        gd \
-        zip \
-        intl \
-        opcache \
-        sockets \
-    && apt-get clean \
-    && rm -rf /var/lib/apt/lists/*
+    && docker-php-ext-install \
+        pdo pdo_mysql mbstring xml ctype fileinfo bcmath zip \
+        exif pcntl intl opcache sockets gd \
+    && apt-get clean && rm -rf /var/lib/apt/lists/*
+
+# Install Composer
+COPY --from=composer:latest /usr/bin/composer /usr/bin/composer
 
 # Install Node.js 20
 RUN curl -fsSL https://deb.nodesource.com/setup_20.x | bash - \
     && apt-get install -y nodejs \
-    && apt-get clean \
-    && rm -rf /var/lib/apt/lists/*
+    && apt-get clean && rm -rf /var/lib/apt/lists/*
 
-# Install Composer
-COPY --from=composer:2.7 /usr/bin/composer /usr/bin/composer
+WORKDIR /app
 
-WORKDIR /var/www/html
-
-# Copy composer files and install PHP dependencies (no dev)
+# Install PHP dependencies
 COPY composer.json composer.lock ./
-RUN composer install \
-    --no-dev \
-    --no-interaction \
-    --no-scripts \
-    --prefer-dist \
-    --optimize-autoloader
+RUN COMPOSER_MEMORY_LIMIT=-1 composer install \
+    --no-dev --optimize-autoloader --no-scripts --no-interaction
 
-# Copy application source
+# Install Node dependencies
+COPY package*.json ./
+RUN npm install
+
+# Copy full project
 COPY . .
 
-# Run composer scripts now that full app is present
-RUN composer dump-autoload --optimize
-
-# Install Node dependencies and build frontend (wayfinder needs PHP/artisan)
-COPY package*.json ./
-RUN npm ci
-
-# Create a minimal .env for artisan to work during build (wayfinder:generate)
+# Generate app key and build frontend (wayfinder needs PHP/artisan)
 RUN cp .env.example .env \
-    && php artisan key:generate --force
-
-RUN npm run build
+    && php artisan key:generate --force \
+    && npm run build
 
 # Set permissions
-RUN chown -R www-data:www-data /var/www/html \
-    && chmod -R 755 /var/www/html/storage \
-    && chmod -R 755 /var/www/html/bootstrap/cache
-
-# Copy config files
-COPY docker/nginx.conf /etc/nginx/nginx.conf
-COPY docker/supervisord.conf /etc/supervisor/conf.d/supervisord.conf
-COPY docker/php.ini /usr/local/etc/php/conf.d/custom.ini
-COPY docker/entrypoint.sh /entrypoint.sh
-RUN chmod +x /entrypoint.sh
+RUN chown -R www-data:www-data /app/storage /app/bootstrap/cache \
+    && chmod -R 775 /app/storage /app/bootstrap/cache
 
 EXPOSE 8080
 
-ENTRYPOINT ["/entrypoint.sh"]
-CMD ["/usr/bin/supervisord", "-c", "/etc/supervisor/conf.d/supervisord.conf"]
+CMD php artisan config:clear && \
+    php artisan cache:clear && \
+    php artisan config:cache && \
+    php artisan route:cache && \
+    php artisan view:cache && \
+    php artisan migrate --force && \
+    php artisan storage:link && \
+    (php artisan schedule:work &) && \
+    (php artisan queue:work --tries=3 --timeout=90 &) && \
+    php -S 0.0.0.0:${PORT:-8080} -t public
