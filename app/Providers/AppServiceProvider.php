@@ -43,7 +43,7 @@ class AppServiceProvider extends ServiceProvider
 
         Date::use(CarbonImmutable::class);
 
-        if (app()->isProduction()) {
+        if (app()->isProduction() || request()->server('HTTP_X_FORWARDED_PROTO') === 'https') {
             URL::forceScheme('https');
         }
 
