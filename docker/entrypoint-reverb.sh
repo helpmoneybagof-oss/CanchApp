@@ -25,7 +25,14 @@ echo "✅ Database connected!"
 
 cd /var/www/html
 
+# Generate .env from environment variables if it doesn't exist
+if [ ! -f .env ]; then
+  echo "📝 Creating .env from environment variables..."
+  cp .env.example .env
+fi
+
 # Cache config
+php artisan config:clear
 php artisan config:cache
 
 echo "✅ Reverb ready on port 8080!"
