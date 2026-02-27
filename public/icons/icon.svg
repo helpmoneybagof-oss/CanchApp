@@ -1,0 +1,21 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512">
+  <!-- Fondo verde esmeralda -->
+  <rect width="512" height="512" rx="96" fill="#10b981"/>
+  <!-- Cancha sintética simplificada -->
+  <!-- Campo principal -->
+  <rect x="80" y="140" width="352" height="232" rx="8" fill="none" stroke="white" stroke-width="10"/>
+  <!-- Línea central -->
+  <line x1="256" y1="140" x2="256" y2="372" stroke="white" stroke-width="10"/>
+  <!-- Círculo central -->
+  <circle cx="256" cy="256" r="44" fill="none" stroke="white" stroke-width="10"/>
+  <!-- Punto central -->
+  <circle cx="256" cy="256" r="8" fill="white"/>
+  <!-- Área izquierda -->
+  <rect x="80" y="196" width="72" height="120" rx="0" fill="none" stroke="white" stroke-width="10"/>
+  <!-- Área derecha -->
+  <rect x="360" y="196" width="72" height="120" rx="0" fill="none" stroke="white" stroke-width="10"/>
+  <!-- Portería izquierda -->
+  <rect x="64" y="220" width="20" height="72" rx="4" fill="white"/>
+  <!-- Portería derecha -->
+  <rect x="428" y="220" width="20" height="72" rx="4" fill="white"/>
+</svg>

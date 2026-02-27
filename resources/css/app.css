@@ -1,0 +1,279 @@
+@import 'tailwindcss';
+
+html, body {
+    overflow-x: hidden;
+    max-width: 100vw;
+}
+
+@import 'tw-animate-css';
+
+@source '../../vendor/laravel/framework/src/Illuminate/Pagination/resources/views/*.blade.php';
+@source '../../storage/framework/views/*.php';
+
+@custom-variant dark (&:is(.dark *));
+
+@theme inline {
+    --font-sans:
+        Instrument Sans, ui-sans-serif, system-ui, sans-serif,
+        'Apple Color Emoji', 'Segoe UI Emoji', 'Segoe UI Symbol',
+        'Noto Color Emoji';
+
+    --radius-lg: var(--radius);
+    --radius-md: calc(var(--radius) - 2px);
+    --radius-sm: calc(var(--radius) - 4px);
+
+    --color-background: var(--background);
+    --color-foreground: var(--foreground);
+
+    --color-card: var(--card);
+    --color-card-foreground: var(--card-foreground);
+
+    --color-popover: var(--popover);
+    --color-popover-foreground: var(--popover-foreground);
+
+    --color-primary: var(--primary);
+    --color-primary-foreground: var(--primary-foreground);
+
+    --color-secondary: var(--secondary);
+    --color-secondary-foreground: var(--secondary-foreground);
+
+    --color-muted: var(--muted);
+    --color-muted-foreground: var(--muted-foreground);
+
+    --color-accent: var(--accent);
+    --color-accent-foreground: var(--accent-foreground);
+
+    --color-destructive: var(--destructive);
+    --color-destructive-foreground: var(--destructive-foreground);
+
+    --color-border: var(--border);
+    --color-input: var(--input);
+    --color-ring: var(--ring);
+
+    --color-chart-1: var(--chart-1);
+    --color-chart-2: var(--chart-2);
+    --color-chart-3: var(--chart-3);
+    --color-chart-4: var(--chart-4);
+    --color-chart-5: var(--chart-5);
+
+    --color-sidebar: var(--sidebar-background);
+    --color-sidebar-foreground: var(--sidebar-foreground);
+    --color-sidebar-primary: var(--sidebar-primary);
+    --color-sidebar-primary-foreground: var(--sidebar-primary-foreground);
+    --color-sidebar-accent: var(--sidebar-accent);
+    --color-sidebar-accent-foreground: var(--sidebar-accent-foreground);
+    --color-sidebar-border: var(--sidebar-border);
+    --color-sidebar-ring: var(--sidebar-ring);
+}
+
+/*
+  The default border color has changed to `currentColor` in Tailwind CSS v4,
+  so we've added these compatibility styles to make sure everything still
+  looks the same as it did with Tailwind CSS v3.
+
+  If we ever want to remove these styles, we need to add an explicit border
+  color utility to any element that depends on these defaults.
+*/
+@layer base {
+    *,
+    ::after,
+    ::before,
+    ::backdrop,
+    ::file-selector-button {
+        border-color: var(--color-gray-200, currentColor);
+    }
+}
+
+@layer utilities {
+    body,
+    html {
+        --font-sans:
+            'Instrument Sans', ui-sans-serif, system-ui, sans-serif,
+            'Apple Color Emoji', 'Segoe UI Emoji', 'Segoe UI Symbol',
+            'Noto Color Emoji';
+    }
+}
+
+:root {
+    /* Paleta deportiva: verde esmeralda como primary */
+    --background: hsl(0 0% 100%);
+    --foreground: hsl(222 47% 11%);
+    --card: hsl(0 0% 100%);
+    --card-foreground: hsl(222 47% 11%);
+    --popover: hsl(0 0% 100%);
+    --popover-foreground: hsl(222 47% 11%);
+    --primary: hsl(158 64% 40%);
+    --primary-foreground: hsl(0 0% 100%);
+    --secondary: hsl(158 30% 94%);
+    --secondary-foreground: hsl(158 64% 25%);
+    --muted: hsl(210 20% 96%);
+    --muted-foreground: hsl(215 16% 47%);
+    --accent: hsl(158 30% 92%);
+    --accent-foreground: hsl(158 64% 25%);
+    --destructive: hsl(0 84% 60%);
+    --destructive-foreground: hsl(0 0% 98%);
+    --border: hsl(214 32% 91%);
+    --input: hsl(214 32% 91%);
+    --ring: hsl(158 64% 40%);
+    --chart-1: hsl(158 64% 40%);
+    --chart-2: hsl(173 58% 39%);
+    --chart-3: hsl(197 37% 24%);
+    --chart-4: hsl(43 74% 66%);
+    --chart-5: hsl(27 87% 67%);
+    --radius: 0.75rem;
+    --sidebar-background: hsl(0 0% 99%);
+    --sidebar-foreground: hsl(222 47% 20%);
+    --sidebar-primary: hsl(158 64% 40%);
+    --sidebar-primary-foreground: hsl(0 0% 100%);
+    --sidebar-accent: hsl(158 30% 94%);
+    --sidebar-accent-foreground: hsl(158 64% 25%);
+    --sidebar-border: hsl(214 32% 91%);
+    --sidebar-ring: hsl(158 64% 40%);
+    --sidebar: hsl(0 0% 99%);
+}
+
+.dark {
+    --background: hsl(222 47% 7%);
+    --foreground: hsl(210 40% 96%);
+    --card: hsl(222 47% 10%);
+    --card-foreground: hsl(210 40% 96%);
+    --popover: hsl(222 47% 10%);
+    --popover-foreground: hsl(210 40% 96%);
+    --primary: hsl(158 64% 45%);
+    --primary-foreground: hsl(222 47% 7%);
+    --secondary: hsl(222 30% 18%);
+    --secondary-foreground: hsl(210 40% 90%);
+    --muted: hsl(222 30% 15%);
+    --muted-foreground: hsl(215 20% 55%);
+    --accent: hsl(222 30% 18%);
+    --accent-foreground: hsl(158 64% 55%);
+    --destructive: hsl(0 72% 51%);
+    --destructive-foreground: hsl(0 0% 98%);
+    --border: hsl(222 30% 18%);
+    --input: hsl(222 30% 18%);
+    --ring: hsl(158 64% 45%);
+    --chart-1: hsl(158 64% 45%);
+    --chart-2: hsl(160 60% 45%);
+    --chart-3: hsl(30 80% 55%);
+    --chart-4: hsl(280 65% 60%);
+    --chart-5: hsl(340 75% 55%);
+    --sidebar-background: hsl(222 47% 9%);
+    --sidebar-foreground: hsl(210 40% 90%);
+    --sidebar-primary: hsl(158 64% 45%);
+    --sidebar-primary-foreground: hsl(222 47% 7%);
+    --sidebar-accent: hsl(222 30% 15%);
+    --sidebar-accent-foreground: hsl(158 64% 55%);
+    --sidebar-border: hsl(222 30% 15%);
+    --sidebar-ring: hsl(158 64% 45%);
+    --sidebar: hsl(222 47% 9%);
+}
+
+@layer base {
+    * {
+        @apply border-border outline-ring/50;
+    }
+    body {
+        @apply bg-background text-foreground;
+    }
+
+    /*
+     * Evitar zoom automático en iOS Safari al enfocar inputs.
+     * iOS hace zoom cuando font-size < 16px en inputs.
+     */
+    @media screen and (max-width: 768px) {
+        input,
+        select,
+        textarea,
+        button {
+            font-size: 16px !important;
+        }
+    }
+}
+
+/* ─── FullCalendar dark mode & theme overrides ─── */
+.fc-theme-custom .fc-scrollgrid,
+.fc-theme-custom .fc-scrollgrid-section > td,
+.fc-theme-custom table {
+    border-color: var(--border) !important;
+}
+
+.fc-theme-custom .fc-col-header-cell {
+    background: var(--card);
+    border-color: var(--border) !important;
+}
+
+.fc-theme-custom .fc-col-header-cell-cushion {
+    color: var(--foreground);
+    font-size: 12px;
+    font-weight: 600;
+    padding: 8px 4px;
+    text-decoration: none;
+}
+
+.fc-theme-custom .fc-timegrid-slot {
+    border-color: var(--border) !important;
+    background: var(--background);
+}
+
+.fc-theme-custom .fc-timegrid-slot-label-cushion {
+    color: var(--color-muted-foreground);
+    font-size: 11px;
+}
+
+.fc-theme-custom .fc-timegrid-col {
+    background: var(--card);
+}
+
+.fc-theme-custom .fc-timegrid-now-indicator-line {
+    border-color: var(--primary) !important;
+}
+
+.fc-theme-custom .fc-timegrid-now-indicator-arrow {
+    border-top-color: var(--primary) !important;
+    border-bottom-color: var(--primary) !important;
+}
+
+.fc-theme-custom .fc-event {
+    cursor: pointer;
+    border-radius: 10px !important;
+    padding: 4px 8px !important;
+    font-weight: 600 !important;
+    font-size: 12px !important;
+    border-width: 0 !important;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.15);
+}
+
+.fc-theme-custom .fc-event-title {
+    white-space: normal;
+    overflow: visible;
+}
+
+.fc-theme-custom .fc-day-today {
+    background: color-mix(in srgb, var(--primary) 6%, transparent) !important;
+}
+
+.fc-theme-custom .fc-button {
+    background: var(--primary) !important;
+    border-color: var(--primary) !important;
+    color: var(--primary-foreground) !important;
+    border-radius: 10px !important;
+    font-size: 13px !important;
+    font-weight: 600 !important;
+    padding: 6px 14px !important;
+}
+
+.fc-theme-custom .fc-button:hover {
+    opacity: 0.9;
+}
+
+.fc-theme-custom .fc-button-active,
+.fc-theme-custom .fc-button:focus {
+    box-shadow: 0 0 0 3px color-mix(in srgb, var(--primary) 30%, transparent) !important;
+}
+
+/* Toolbar title */
+.fc-theme-custom .fc-toolbar-title {
+    color: var(--foreground);
+    font-size: 15px !important;
+    font-weight: 700 !important;
+}

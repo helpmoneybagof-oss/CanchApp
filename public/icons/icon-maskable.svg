@@ -1,0 +1,21 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512">
+  <!-- Fondo verde esmeralda SÓLIDO (maskable: sin bordes redondeados, llena todo) -->
+  <rect width="512" height="512" fill="#10b981"/>
+  <!-- Cancha con más padding para zona segura del maskable (safe zone = 80%) -->
+  <!-- Campo principal -->
+  <rect x="100" y="160" width="312" height="192" rx="6" fill="none" stroke="white" stroke-width="9"/>
+  <!-- Línea central -->
+  <line x1="256" y1="160" x2="256" y2="352" stroke="white" stroke-width="9"/>
+  <!-- Círculo central -->
+  <circle cx="256" cy="256" r="38" fill="none" stroke="white" stroke-width="9"/>
+  <!-- Punto central -->
+  <circle cx="256" cy="256" r="7" fill="white"/>
+  <!-- Área izquierda -->
+  <rect x="100" y="208" width="64" height="96" rx="0" fill="none" stroke="white" stroke-width="9"/>
+  <!-- Área derecha -->
+  <rect x="348" y="208" width="64" height="96" rx="0" fill="none" stroke="white" stroke-width="9"/>
+  <!-- Portería izquierda -->
+  <rect x="84" y="228" width="18" height="56" rx="3" fill="white"/>
+  <!-- Portería derecha -->
+  <rect x="410" y="228" width="18" height="56" rx="3" fill="white"/>
+</svg>
