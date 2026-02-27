@@ -47,6 +47,16 @@ php artisan event:cache
 echo "🗃️  Running migrations..."
 php artisan migrate --force --no-interaction
 
+# Seed database only if users table is empty (first deploy)
+echo "🔍 Checking if database needs seeding..."
+USER_COUNT=$(mysql -h"${DB_HOST}" -P"${DB_PORT:-3306}" -u"${DB_USERNAME}" -p"${DB_PASSWORD}" "${DB_DATABASE}" -se "SELECT COUNT(*) FROM users;" 2>/dev/null || echo "0")
+if [ "$USER_COUNT" = "0" ] || [ -z "$USER_COUNT" ]; then
+  echo "🌱 Seeding database (first deploy)..."
+  php artisan db:seed --force --no-interaction
+else
+  echo "✅ Database already has ${USER_COUNT} users, skipping seed."
+fi
+
 # Create storage symlink
 echo "🔗 Creating storage symlink..."
 php artisan storage:link --force 2>/dev/null || true
