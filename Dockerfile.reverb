@@ -1,23 +1,18 @@
 # ============================================================
 # Dockerfile.reverb — Laravel Reverb WebSocket Server
 # ============================================================
-FROM php:8.2-fpm-alpine
+FROM php:8.2-fpm
 
 # Install system dependencies
-RUN apk add --no-cache \
+RUN apt-get update && apt-get install -y --no-install-recommends \
     curl \
     zip \
     unzip \
-    git \
-    mysql-client \
-    libpng-dev \
-    libjpeg-turbo-dev \
-    freetype-dev \
+    default-mysql-client \
     libzip-dev \
-    oniguruma-dev \
-    icu-dev \
-    && docker-php-ext-configure gd --with-freetype --with-jpeg \
-    && docker-php-ext-install \
+    libicu-dev \
+    libonig-dev \
+    && docker-php-ext-install -j$(nproc) \
         pdo_mysql \
         mbstring \
         pcntl \
@@ -25,7 +20,9 @@ RUN apk add --no-cache \
         zip \
         intl \
         opcache \
-        sockets
+        sockets \
+    && apt-get clean \
+    && rm -rf /var/lib/apt/lists/*
 
 # Install Composer
 COPY --from=composer:2.7 /usr/bin/composer /usr/bin/composer

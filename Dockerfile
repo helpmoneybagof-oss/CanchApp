@@ -6,34 +6,37 @@ FROM node:20-alpine AS node-builder
 WORKDIR /app
 
 COPY package*.json ./
-RUN npm ci
+RUN npm ci --prefer-offline
 
-COPY . .
+COPY resources/ ./resources/
+COPY public/ ./public/
+COPY vite.config.ts tsconfig.json ./
+COPY components.json ./
+
 RUN npm run build
 
 
 # ============================================================
-# Stage 2: PHP — production image
+# Stage 2: PHP — production image (Debian-based for faster builds)
 # ============================================================
-FROM php:8.2-fpm-alpine AS php-base
+FROM php:8.2-fpm AS php-base
 
 # Install system dependencies
-RUN apk add --no-cache \
+RUN apt-get update && apt-get install -y --no-install-recommends \
     nginx \
     supervisor \
     curl \
     zip \
     unzip \
-    git \
-    mysql-client \
+    default-mysql-client \
     libpng-dev \
-    libjpeg-turbo-dev \
-    freetype-dev \
+    libjpeg-dev \
+    libfreetype6-dev \
     libzip-dev \
-    oniguruma-dev \
-    icu-dev \
+    libicu-dev \
+    libonig-dev \
     && docker-php-ext-configure gd --with-freetype --with-jpeg \
-    && docker-php-ext-install \
+    && docker-php-ext-install -j$(nproc) \
         pdo_mysql \
         mbstring \
         exif \
@@ -43,7 +46,9 @@ RUN apk add --no-cache \
         zip \
         intl \
         opcache \
-        sockets
+        sockets \
+    && apt-get clean \
+    && rm -rf /var/lib/apt/lists/*
 
 # Install Composer
 COPY --from=composer:2.7 /usr/bin/composer /usr/bin/composer
@@ -64,7 +69,6 @@ COPY . .
 
 # Copy built frontend assets from node stage
 COPY --from=node-builder /app/public/build ./public/build
-COPY --from=node-builder /app/public/icons ./public/icons
 
 # Run composer scripts now that full app is present
 RUN composer dump-autoload --optimize
