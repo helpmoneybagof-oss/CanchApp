@@ -43,7 +43,7 @@
         <meta name="apple-mobile-web-app-status-bar-style" content="default">
         <meta name="apple-mobile-web-app-title" content="Cancha">
         @production
-            <link rel="manifest" href="/manifest.webmanifest">
+            <link rel="manifest" href="/build/manifest.webmanifest">
         @endproduction
 
         <link rel="preconnect" href="https://fonts.bunny.net">
