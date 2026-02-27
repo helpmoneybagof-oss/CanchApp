@@ -7,6 +7,7 @@ use App\Models\Setting;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Config;
+use Illuminate\Support\Facades\Hash;
 use Inertia\Inertia;
 use Inertia\Response;
 
@@ -75,6 +76,27 @@ class SettingsController extends Controller
 
         return redirect()->route('admin.settings')
             ->with('flash', ['type' => 'success', 'message' => 'Configuración guardada exitosamente.']);
+    }
+
+    public function changePassword(Request $request): RedirectResponse
+    {
+        $request->validate([
+            'current_password' => 'required|string|current_password',
+            'password'         => 'required|string|min:8|confirmed',
+        ], [
+            'current_password.current_password' => 'La contraseña actual es incorrecta.',
+            'password.min'                      => 'La nueva contraseña debe tener al menos 8 caracteres.',
+            'password.confirmed'                => 'Las contraseñas no coinciden.',
+            'current_password.required'         => 'La contraseña actual es obligatoria.',
+            'password.required'                 => 'La nueva contraseña es obligatoria.',
+        ]);
+
+        $request->user()->update([
+            'password' => Hash::make($request->password),
+        ]);
+
+        return redirect()->route('admin.settings')
+            ->with('flash', ['type' => 'success', 'message' => 'Contraseña actualizada exitosamente.']);
     }
 
     /**

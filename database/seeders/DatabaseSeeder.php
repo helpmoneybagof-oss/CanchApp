@@ -20,7 +20,7 @@ class DatabaseSeeder extends Seeder
         // Admin por defecto
         User::updateOrCreate(['email' => 'admin@cancha.com'], [
             'name' => 'Administrador',
-            'password' => bcrypt('password'),
+            'password' => bcrypt('Admin2026*'),
             'role' => 'admin',
             'active' => true,
             'email_verified_at' => now(),

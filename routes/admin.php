@@ -53,6 +53,7 @@ Route::middleware(['auth', 'verified', 'admin'])->prefix('admin')->name('admin.'
     // Configuración
     Route::get('/settings', [SettingsController::class, 'index'])->name('settings');
     Route::put('/settings', [SettingsController::class, 'update'])->name('settings.update');
+    Route::post('/settings/password', [SettingsController::class, 'changePassword'])->name('settings.password');
 
     // Reportes
     Route::get('/reports', [ReportController::class, 'index'])->name('reports');

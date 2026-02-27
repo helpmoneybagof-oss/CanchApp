@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { Head, router, usePage } from '@inertiajs/vue3';
-import { Save, Settings as SettingsIcon } from 'lucide-vue-next';
+import { Save, Settings as SettingsIcon, KeyRound } from 'lucide-vue-next';
 import { ref, onMounted } from 'vue';
 import AppAdminLayout from '@/layouts/AppAdminLayout.vue';
 import { useToast } from '@/composables/useToast';
@@ -31,6 +31,11 @@ const form = ref({ ...props.settings });
 const saving = ref(false);
 const errors = ref<Record<string, string>>({});
 
+// Cambio de contraseña
+const passwordForm = ref({ current_password: '', password: '', password_confirmation: '' });
+const savingPassword = ref(false);
+const passwordErrors = ref<Record<string, string>>({});
+
 onMounted(() => {
     const flash = (page.props as any).flash;
     if (flash?.type === 'success') toast.success(flash.message, '¡Guardado!');
@@ -42,6 +47,16 @@ function save() {
     router.put('/admin/settings', form.value, {
         onError: (e) => { errors.value = e; },
         onFinish: () => { saving.value = false; },
+    });
+}
+
+function changePassword() {
+    passwordErrors.value = {};
+    savingPassword.value = true;
+    router.post('/admin/settings/password', passwordForm.value, {
+        onSuccess: () => { passwordForm.value = { current_password: '', password: '', password_confirmation: '' }; },
+        onError: (e) => { passwordErrors.value = e; },
+        onFinish: () => { savingPassword.value = false; },
     });
 }
 </script>
@@ -205,6 +220,41 @@ function save() {
                     <Save class="h-4 w-4" />
                     {{ saving ? 'Guardando...' : 'Guardar configuración' }}
                 </button>
+
+                <!-- Cambiar contraseña del admin -->
+                <div class="rounded-2xl border border-border bg-card p-5 shadow-sm">
+                    <h2 class="mb-1 flex items-center gap-2 text-sm font-semibold text-foreground">
+                        <KeyRound class="h-4 w-4 text-primary" />
+                        Cambiar contraseña
+                    </h2>
+                    <p class="mb-4 text-xs text-muted-foreground">Actualiza la contraseña de tu cuenta de administrador.</p>
+                    <div class="space-y-4">
+                        <div>
+                            <label class="mb-1.5 block text-sm font-medium text-foreground">Contraseña actual</label>
+                            <input v-model="passwordForm.current_password" type="password" placeholder="••••••••"
+                                class="w-full rounded-xl border border-border bg-background px-3 py-2.5 text-sm text-foreground focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/20"
+                                :class="passwordErrors.current_password ? 'border-destructive' : ''" />
+                            <p v-if="passwordErrors.current_password" class="mt-1 text-xs text-destructive">{{ passwordErrors.current_password }}</p>
+                        </div>
+                        <div>
+                            <label class="mb-1.5 block text-sm font-medium text-foreground">Nueva contraseña</label>
+                            <input v-model="passwordForm.password" type="password" placeholder="Mínimo 8 caracteres"
+                                class="w-full rounded-xl border border-border bg-background px-3 py-2.5 text-sm text-foreground focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/20"
+                                :class="passwordErrors.password ? 'border-destructive' : ''" />
+                            <p v-if="passwordErrors.password" class="mt-1 text-xs text-destructive">{{ passwordErrors.password }}</p>
+                        </div>
+                        <div>
+                            <label class="mb-1.5 block text-sm font-medium text-foreground">Confirmar nueva contraseña</label>
+                            <input v-model="passwordForm.password_confirmation" type="password" placeholder="Repite la nueva contraseña"
+                                class="w-full rounded-xl border border-border bg-background px-3 py-2.5 text-sm text-foreground focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/20" />
+                        </div>
+                        <button @click="changePassword" :disabled="savingPassword"
+                            class="flex w-full items-center justify-center gap-2 rounded-2xl bg-destructive py-3 text-sm font-bold text-white shadow transition hover:bg-destructive/90 active:scale-[0.98] disabled:opacity-60">
+                            <KeyRound class="h-4 w-4" />
+                            {{ savingPassword ? 'Actualizando...' : 'Cambiar contraseña' }}
+                        </button>
+                    </div>
+                </div>
             </div>
         </div>
     </AppAdminLayout>
