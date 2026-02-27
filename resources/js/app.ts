@@ -45,14 +45,19 @@ window.addEventListener('appinstalled', async () => {
 };
 
 // ─── Laravel Echo (Reverb WebSocket) ────────────────────────────────────────
+// La configuración viene del servidor vía Inertia shared props (reverb)
+// para evitar depender de variables VITE_* compiladas en build time.
 window.Pusher = Pusher;
+
+const reverbConfig = (window as any).__reverb__ ?? {};
+
 window.Echo = new Echo({
     broadcaster: 'reverb',
-    key: import.meta.env.VITE_REVERB_APP_KEY,
-    wsHost: import.meta.env.VITE_REVERB_HOST ?? 'localhost',
-    wsPort: import.meta.env.VITE_REVERB_PORT ?? 8080,
-    wssPort: import.meta.env.VITE_REVERB_PORT ?? 8080,
-    forceTLS: (import.meta.env.VITE_REVERB_SCHEME ?? 'http') === 'https',
+    key: reverbConfig.key ?? import.meta.env.VITE_REVERB_APP_KEY,
+    wsHost: reverbConfig.host ?? import.meta.env.VITE_REVERB_HOST ?? 'localhost',
+    wsPort: reverbConfig.port ?? import.meta.env.VITE_REVERB_PORT ?? 8080,
+    wssPort: reverbConfig.port ?? import.meta.env.VITE_REVERB_PORT ?? 8080,
+    forceTLS: (reverbConfig.scheme ?? import.meta.env.VITE_REVERB_SCHEME ?? 'http') === 'https',
     enabledTransports: ['ws', 'wss'],
     disableStats: true,
 });

@@ -51,6 +51,12 @@ class HandleInertiaRequests extends Middleware
                 'message'           => $request->session()->get('flash.message'),
                 'confirmation_code' => $request->session()->get('flash.confirmation_code'),
             ],
+            'reverb' => [
+                'key'    => config('broadcasting.connections.reverb.key'),
+                'host'   => config('broadcasting.connections.reverb.options.host'),
+                'port'   => config('broadcasting.connections.reverb.options.port'),
+                'scheme' => config('broadcasting.connections.reverb.options.scheme'),
+            ],
         ];
     }
 }

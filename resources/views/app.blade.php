@@ -49,6 +49,16 @@
         <link rel="preconnect" href="https://fonts.bunny.net">
         <link href="https://fonts.bunny.net/css?family=instrument-sans:400,500,600" rel="stylesheet" />
 
+        {{-- Reverb config inyectada desde PHP para evitar depender de VITE_* en build time --}}
+        <script>
+            window.__reverb__ = {
+                key: '{{ config('broadcasting.connections.reverb.key') }}',
+                host: '{{ config('broadcasting.connections.reverb.options.host') }}',
+                port: {{ (int) config('broadcasting.connections.reverb.options.port', 443) }},
+                scheme: '{{ config('broadcasting.connections.reverb.options.scheme', 'https') }}',
+            };
+        </script>
+
         @vite(['resources/js/app.ts', "resources/js/pages/{$page['component']}.vue"])
         @inertiaHead
     </head>
