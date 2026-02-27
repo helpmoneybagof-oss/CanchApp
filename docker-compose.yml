@@ -1,0 +1,71 @@
+version: '3.8'
+
+services:
+  app:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    ports:
+      - "8080:8080"   # Web app
+      - "8081:8081"   # Laravel Reverb (WebSockets)
+    environment:
+      APP_NAME: CanchApp
+      APP_ENV: production
+      APP_DEBUG: false
+      APP_URL: http://localhost:8080
+
+      DB_CONNECTION: mysql
+      DB_HOST: db
+      DB_PORT: 3306
+      DB_DATABASE: canchapp
+      DB_USERNAME: canchapp
+      DB_PASSWORD: secret
+
+      QUEUE_CONNECTION: database
+
+      BROADCAST_CONNECTION: reverb
+      REVERB_APP_ID: canchapp
+      REVERB_APP_KEY: canchapp-key
+      REVERB_APP_SECRET: canchapp-secret
+      REVERB_HOST: localhost
+      REVERB_PORT: 8081
+      REVERB_SCHEME: http
+
+      VITE_REVERB_APP_KEY: canchapp-key
+      VITE_REVERB_HOST: localhost
+      VITE_REVERB_PORT: 8081
+      VITE_REVERB_SCHEME: http
+
+      SESSION_DRIVER: database
+      CACHE_STORE: database
+
+      MAIL_MAILER: smtp
+      MAIL_HOST: smtp.gmail.com
+      MAIL_PORT: 587
+      MAIL_ENCRYPTION: tls
+
+    depends_on:
+      db:
+        condition: service_healthy
+    volumes:
+      - storage_data:/var/www/html/storage/app/public
+
+  db:
+    image: mysql:8.0
+    environment:
+      MYSQL_DATABASE: canchapp
+      MYSQL_USER: canchapp
+      MYSQL_PASSWORD: secret
+      MYSQL_ROOT_PASSWORD: rootsecret
+    ports:
+      - "3306:3306"
+    volumes:
+      - db_data:/var/lib/mysql
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost"]
+      timeout: 10s
+      retries: 10
+
+volumes:
+  db_data:
+  storage_data:
