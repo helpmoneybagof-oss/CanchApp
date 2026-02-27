@@ -56,4 +56,9 @@ chown -R www-data:www-data /var/www/html/storage /var/www/html/bootstrap/cache
 
 echo "✅ CanchApp ready!"
 
+# Reemplazar el puerto en nginx con el PORT que Railway inyecta
+NGINX_PORT=${PORT:-8080}
+echo "🌐 Nginx escuchando en puerto ${NGINX_PORT}..."
+sed -i "s/listen 8080;/listen ${NGINX_PORT};/g" /etc/nginx/nginx.conf
+
 exec "$@"
