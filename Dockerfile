@@ -1,23 +1,5 @@
 # ============================================================
-# Stage 1: Node — build frontend assets
-# ============================================================
-FROM node:20-alpine AS node-builder
-
-WORKDIR /app
-
-COPY package*.json ./
-RUN npm ci --prefer-offline
-
-COPY resources/ ./resources/
-COPY public/ ./public/
-COPY vite.config.ts tsconfig.json ./
-COPY components.json ./
-
-RUN npm run build
-
-
-# ============================================================
-# Stage 2: PHP — production image (Debian-based for faster builds)
+# Stage 1: PHP + Node — build frontend assets (needs PHP for wayfinder)
 # ============================================================
 FROM php:8.2-fpm AS php-base
 
@@ -50,6 +32,12 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
     && apt-get clean \
     && rm -rf /var/lib/apt/lists/*
 
+# Install Node.js 20
+RUN curl -fsSL https://deb.nodesource.com/setup_20.x | bash - \
+    && apt-get install -y nodejs \
+    && apt-get clean \
+    && rm -rf /var/lib/apt/lists/*
+
 # Install Composer
 COPY --from=composer:2.7 /usr/bin/composer /usr/bin/composer
 
@@ -67,11 +55,18 @@ RUN composer install \
 # Copy application source
 COPY . .
 
-# Copy built frontend assets from node stage
-COPY --from=node-builder /app/public/build ./public/build
-
 # Run composer scripts now that full app is present
 RUN composer dump-autoload --optimize
+
+# Install Node dependencies and build frontend (wayfinder needs PHP/artisan)
+COPY package*.json ./
+RUN npm ci
+
+# Create a minimal .env for artisan to work during build (wayfinder:generate)
+RUN cp .env.example .env \
+    && php artisan key:generate --force
+
+RUN npm run build
 
 # Set permissions
 RUN chown -R www-data:www-data /var/www/html \
