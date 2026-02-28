@@ -34,11 +34,13 @@ async function saveSubscription(subscription: PushSubscription): Promise<void> {
     const key = subscription.getKey('p256dh');
     const auth = subscription.getKey('auth');
 
-    await fetch('/api/push/subscribe', {
+    const res = await fetch('/api/push/subscribe', {
         method: 'POST',
+        credentials: 'same-origin',
         headers: {
             'Content-Type': 'application/json',
             'X-CSRF-TOKEN': (document.querySelector('meta[name="csrf-token"]') as HTMLMetaElement)?.content ?? '',
+            'X-Requested-With': 'XMLHttpRequest',
         },
         body: JSON.stringify({
             endpoint: subscription.endpoint,
@@ -46,6 +48,11 @@ async function saveSubscription(subscription: PushSubscription): Promise<void> {
             auth:     auth  ? btoa(String.fromCharCode(...new Uint8Array(auth)))  : '',
         }),
     });
+
+    if (!res.ok) {
+        const text = await res.text().catch(() => '');
+        console.warn('[Push] Error guardando suscripción:', res.status, text);
+    }
 }
 
 /**
