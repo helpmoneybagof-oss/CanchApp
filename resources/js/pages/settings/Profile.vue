@@ -2,6 +2,7 @@
 import { Form, Head, Link, usePage } from '@inertiajs/vue3';
 import { computed } from 'vue';
 import DeleteUser from '@/components/DeleteUser.vue';
+import PushDebugCard from '@/components/PushDebugCard.vue';
 import Heading from '@/components/Heading.vue';
 import InputError from '@/components/InputError.vue';
 import { Button } from '@/components/ui/button';
@@ -23,7 +24,7 @@ defineProps<Props>();
 
 const breadcrumbItems: BreadcrumbItem[] = [
     {
-        title: 'Profile settings',
+        title: 'Perfil',
         href: edit().url,
     },
 ];
@@ -34,9 +35,9 @@ const user = computed(() => page.props.auth.user);
 
 <template>
     <AppLayout :breadcrumbs="breadcrumbItems">
-        <Head title="Profile settings" />
+        <Head title="Perfil" />
 
-        <h1 class="sr-only">Profile Settings</h1>
+        <h1 class="sr-only">Perfil</h1>
 
         <SettingsLayout>
             <div class="flex flex-col space-y-6">
@@ -122,6 +123,10 @@ const user = computed(() => page.props.auth.user);
                         </Transition>
                     </div>
                 </Form>
+            </div>
+
+            <div class="mt-8">
+                <PushDebugCard />
             </div>
 
             <DeleteUser />

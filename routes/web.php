@@ -27,6 +27,10 @@ Route::middleware(['auth'])->prefix('api')->group(function () {
     Route::post('/push/subscribe',   [\App\Http\Controllers\Api\PushSubscriptionController::class, 'store'])->name('push.subscribe');
     Route::post('/push/unsubscribe', [\App\Http\Controllers\Api\PushSubscriptionController::class, 'destroy'])->name('push.unsubscribe');
 
+    // Debug Push Notifications
+    Route::get('/push/status', [\App\Http\Controllers\Api\PushDebugController::class, 'status'])->name('push.status');
+    Route::post('/push/test',  [\App\Http\Controllers\Api\PushDebugController::class, 'test'])->name('push.test');
+
     // Notificaciones en campana
     Route::get('/notifications',              [\App\Http\Controllers\Api\NotificationController::class, 'index'])->name('notifications.index');
     Route::post('/notifications/read-all',    [\App\Http\Controllers\Api\NotificationController::class, 'markAllRead'])->name('notifications.read-all');

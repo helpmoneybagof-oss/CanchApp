@@ -3,6 +3,7 @@ import { Head, router, usePage } from '@inertiajs/vue3';
 import { Save, Settings as SettingsIcon, KeyRound } from 'lucide-vue-next';
 import { ref, onMounted } from 'vue';
 import AppAdminLayout from '@/layouts/AppAdminLayout.vue';
+import PushDebugCard from '@/components/PushDebugCard.vue';
 import { useToast } from '@/composables/useToast';
 
 const toast = useToast();
@@ -220,6 +221,9 @@ function changePassword() {
                     <Save class="h-4 w-4" />
                     {{ saving ? 'Guardando...' : 'Guardar configuración' }}
                 </button>
+
+                <!-- Diagnóstico Push Notifications -->
+                <PushDebugCard />
 
                 <!-- Cambiar contraseña del admin -->
                 <div class="rounded-2xl border border-border bg-card p-5 shadow-sm">
