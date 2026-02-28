@@ -17,6 +17,7 @@ interface PaymentReservation {
     payment_reference: string | null;
     payment_proof_url: string | null;
     submitted_at: string;
+    is_cancelled: boolean;
     user: { name: string; email: string; phone: string | null };
 }
 
@@ -60,6 +61,16 @@ function reject(id: number) {
         },
     );
 }
+
+function dismiss(id: number) {
+    processing.value = id;
+    router.delete(
+        `/admin/reservations/${id}/dismiss-payment`,
+        {
+            onFinish: () => { processing.value = null; },
+        },
+    );
+}
 </script>
 
 <template>
@@ -83,6 +94,12 @@ function reject(id: number) {
             <div v-else class="space-y-4">
                 <div v-for="r in reservations" :key="r.id"
                     class="rounded-2xl border border-border bg-card p-4 shadow-sm">
+
+                    <!-- Badge cancelada -->
+                    <div v-if="r.is_cancelled" class="mb-3 flex items-center gap-2 rounded-xl bg-destructive/10 px-3 py-2 text-sm font-semibold text-destructive">
+                        <X class="h-4 w-4 shrink-0" />
+                        Reserva cancelada — el cliente canceló antes de que se revisara el comprobante.
+                    </div>
 
                     <!-- Encabezado -->
                     <div class="flex items-start justify-between gap-3 mb-3">
@@ -121,16 +138,27 @@ function reject(id: number) {
 
                     <!-- Acciones -->
                     <div class="flex gap-3">
-                        <button @click="reject(r.id)" :disabled="processing === r.id"
-                            class="flex flex-1 items-center justify-center gap-1.5 rounded-xl border border-destructive/50 py-2.5 text-sm font-semibold text-destructive transition hover:bg-destructive/10 disabled:opacity-50">
-                            <X class="h-4 w-4" />
-                            Rechazar
-                        </button>
-                        <button @click="approve(r.id)" :disabled="processing === r.id"
-                            class="flex flex-1 items-center justify-center gap-1.5 rounded-xl bg-emerald-600 py-2.5 text-sm font-bold text-white shadow transition hover:bg-emerald-700 disabled:opacity-50">
-                            <CheckCircle class="h-4 w-4" />
-                            Aprobar pago
-                        </button>
+                        <!-- Reserva cancelada: solo botón descartar -->
+                        <template v-if="r.is_cancelled">
+                            <button @click="dismiss(r.id)" :disabled="processing === r.id"
+                                class="flex flex-1 items-center justify-center gap-1.5 rounded-xl bg-muted py-2.5 text-sm font-semibold text-muted-foreground transition hover:bg-muted/70 disabled:opacity-50">
+                                <CheckCircle class="h-4 w-4" />
+                                Ok, descartar
+                            </button>
+                        </template>
+                        <!-- Reserva activa: aprobar o rechazar -->
+                        <template v-else>
+                            <button @click="reject(r.id)" :disabled="processing === r.id"
+                                class="flex flex-1 items-center justify-center gap-1.5 rounded-xl border border-destructive/50 py-2.5 text-sm font-semibold text-destructive transition hover:bg-destructive/10 disabled:opacity-50">
+                                <X class="h-4 w-4" />
+                                Rechazar
+                            </button>
+                            <button @click="approve(r.id)" :disabled="processing === r.id"
+                                class="flex flex-1 items-center justify-center gap-1.5 rounded-xl bg-emerald-600 py-2.5 text-sm font-bold text-white shadow transition hover:bg-emerald-700 disabled:opacity-50">
+                                <CheckCircle class="h-4 w-4" />
+                                Aprobar pago
+                            </button>
+                        </template>
                     </div>
                 </div>
             </div>

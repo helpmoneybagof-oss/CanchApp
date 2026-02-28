@@ -17,6 +17,7 @@ use App\Notifications\PaymentApprovedNotification;
 use App\Notifications\PaymentRejectedNotification;
 use App\Notifications\ReservationCancelledNotification;
 use App\Notifications\ReservationCreatedNotification;
+use App\Notifications\PreReservationCancelledNotification;
 use App\Services\NotificationService;
 use App\Services\PushNotificationService;
 use App\Services\TimeSlotService;
@@ -286,23 +287,39 @@ class ReservationController extends Controller
     /**
      * Marcar reserva como pagada.
      */
-    public function markAsPaid(Reservation $reservation): RedirectResponse
+    public function markAsPaid(Reservation $reservation, NotificationService $notif, PushNotificationService $push): RedirectResponse
     {
+        $reservation->load('user');
         $reservation->update(['payment_status' => 'paid']);
 
         // Broadcast en tiempo real
         broadcast(new PaymentApproved($reservation))->toOthers();
+
+        // Notificación DB + Push al cliente
+        try {
+            $notif->notifyUser($reservation->user, new PaymentApprovedNotification($reservation));
+            $push->sendToUser(
+                userId: $reservation->user_id,
+                title:  '✅ Pago aprobado',
+                body:   "Tu pago para la reserva #{$reservation->confirmation_code} fue aprobado. ¡Nos vemos en la cancha!",
+                data:   ['url' => "/reservations/{$reservation->id}"],
+            );
+        } catch (\Throwable $e) {
+            Log::warning("Notif/Push cliente error (markAsPaid reserva #{$reservation->id}): {$e->getMessage()}");
+        }
 
         return redirect()->back();
     }
 
     /**
      * Listado de pagos pendientes de revisión.
+     * Incluye también reservas canceladas que tenían comprobante subido.
      */
     public function pendingPayments(): Response
     {
         $reservations = Reservation::with('user')
             ->where('payment_status', 'payment_review')
+            ->whereNotNull('payment_proof')
             ->orderByDesc('updated_at')
             ->get()
             ->map(fn (Reservation $r) => [
@@ -318,6 +335,7 @@ class ReservationController extends Controller
                     ? Storage::url($r->payment_proof)
                     : null,
                 'submitted_at'       => $r->updated_at->format('d/m/Y H:i'),
+                'is_cancelled'       => $r->status === 'cancelled',
                 'user' => [
                     'name'  => $r->user->name,
                     'email' => $r->user->email,
@@ -325,8 +343,65 @@ class ReservationController extends Controller
                 ],
             ]);
 
+        // Reservas canceladas que aún tienen comprobante (para que admin las descarte)
+        $cancelledWithProof = Reservation::with('user')
+            ->where('status', 'cancelled')
+            ->whereNotNull('payment_proof')
+            ->whereIn('payment_status', ['payment_review', 'unpaid', 'pending_payment'])
+            ->orderByDesc('updated_at')
+            ->get()
+            ->map(fn (Reservation $r) => [
+                'id'                 => $r->id,
+                'confirmation_code'  => $r->confirmation_code,
+                'date'               => $r->date_formatted,
+                'start_time'         => $r->start_time_formatted,
+                'end_time'           => $r->end_time_formatted,
+                'total_price'        => (float) $r->total_price,
+                'payment_method'     => $r->payment_method,
+                'payment_reference'  => $r->payment_reference,
+                'payment_proof_url'  => $r->payment_proof
+                    ? Storage::url($r->payment_proof)
+                    : null,
+                'submitted_at'       => $r->updated_at->format('d/m/Y H:i'),
+                'is_cancelled'       => true,
+                'user' => [
+                    'name'  => $r->user->name,
+                    'email' => $r->user->email,
+                    'phone' => $r->user->phone,
+                ],
+            ]);
+
+        // Combinar: primero las activas (por revisar), luego las canceladas
+        $all = $reservations->concat($cancelledWithProof)->unique('id')->values();
+
         return Inertia::render('admin/PendingPayments', [
-            'reservations' => $reservations,
+            'reservations' => $all,
+        ]);
+    }
+
+    /**
+     * Descartar comprobante de una reserva cancelada (limpia el proof y la saca de la lista).
+     */
+    public function dismissPayment(Reservation $reservation): RedirectResponse
+    {
+        // Solo permitir descartar si la reserva está cancelada
+        if ($reservation->status !== 'cancelled') {
+            return redirect()->back()->withErrors(['message' => 'Solo se pueden descartar comprobantes de reservas canceladas.']);
+        }
+
+        // Eliminar el archivo de comprobante si existe
+        if ($reservation->payment_proof) {
+            Storage::delete($reservation->payment_proof);
+        }
+
+        $reservation->update([
+            'payment_proof'     => null,
+            'payment_reference' => null,
+        ]);
+
+        return redirect()->back()->with('flash', [
+            'type'    => 'success',
+            'message' => 'Comprobante descartado.',
         ]);
     }
 
@@ -343,10 +418,33 @@ class ReservationController extends Controller
 
         // Marcar los slots como reservados definitivamente y cancelar otras pre-reservas
         $slotIds = $reservation->timeSlots()->pluck('time_slots.id')->toArray();
-        $slotService->markAsReserved($slotIds, $reservation->id);
+        $cancelledReservationIds = $slotService->markAsReserved($slotIds, $reservation->id);
 
         // Broadcast en tiempo real
         broadcast(new PaymentApproved($reservation))->toOthers();
+
+        // Notificar a clientes cuyas pre-reservas fueron canceladas por este pago (DB + Push)
+        if (! empty($cancelledReservationIds)) {
+            try {
+                $losers = Reservation::with('user')
+                    ->whereIn('id', $cancelledReservationIds)
+                    ->get();
+
+                foreach ($losers as $loser) {
+                    if (! $loser->user) continue;
+
+                    $notif->notifyUser($loser->user, new PreReservationCancelledNotification($loser));
+                    $push->sendToUser(
+                        userId: $loser->user_id,
+                        title:  '⏳ Pre-reserva liberada',
+                        body:   'Otro usuario completó el pago primero y se liberó tu pre-reserva. Puedes intentar reservar otro horario.',
+                        data:   ['url' => '/reservations'],
+                    );
+                }
+            } catch (\Throwable $e) {
+                \Illuminate\Support\Facades\Log::warning("Notif/Push losers error (aprobación reserva #{$reservation->id}): {$e->getMessage()}");
+            }
+        }
 
         // Notificación DB + Push al cliente
         try {

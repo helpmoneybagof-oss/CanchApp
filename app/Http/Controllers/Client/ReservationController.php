@@ -13,6 +13,8 @@ use App\Models\ReservationItem;
 use App\Models\TimeSlot;
 use App\Models\User;
 use App\Notifications\ReservationCreatedNotification;
+use App\Notifications\AdminReservationCancelledNotification;
+use App\Services\PushNotificationService;
 use App\Services\NotificationService;
 use App\Services\TimeSlotService;
 use Illuminate\Http\JsonResponse;
@@ -256,12 +258,21 @@ class ReservationController extends Controller
             $reservation->load('user');
             broadcast(new ReservationCreatedEvent($reservation))->toOthers();
 
-            // Notificación DB a todos los admins (campana en tiempo real)
+            // Notificación DB + Push a todos los admins
             try {
                 $notif = app(NotificationService::class);
+                $push  = app(PushNotificationService::class);
+
                 $notif->notifyAdmins(new ReservationCreatedNotification($reservation));
+
+                $courtName = $reservation->court?->name ?? 'Cancha';
+                $push->sendToAdmins(
+                    title: '📅 Nueva reserva',
+                    body:  "{$reservation->user->name} reservó {$courtName} el {$reservation->date_formatted}",
+                    data:  ['url' => "/admin/reservations/{$reservation->id}"],
+                );
             } catch (\Throwable $e) {
-                \Illuminate\Support\Facades\Log::warning("Notif admin error (nueva reserva #{$reservation->id}): {$e->getMessage()}");
+                \Illuminate\Support\Facades\Log::warning("Notif/Push admin error (nueva reserva #{$reservation->id}): {$e->getMessage()}");
             }
 
             return redirect()->route('reservations.payment', $reservation)
@@ -358,6 +369,22 @@ class ReservationController extends Controller
 
             // Broadcast en tiempo real
             broadcast(new ReservationCancelledEvent($reservation))->toOthers();
+
+            // Notificación DB + Push a admins
+            try {
+                $reservation->load(['user', 'court']);
+                $notif = app(NotificationService::class);
+                $push  = app(PushNotificationService::class);
+
+                $notif->notifyAdmins(new AdminReservationCancelledNotification($reservation));
+                $push->sendToAdmins(
+                    title: '❌ Reserva cancelada',
+                    body:  "{$reservation->user->name} canceló la reserva #{$reservation->confirmation_code}.",
+                    data:  ['url' => "/admin/reservations/{$reservation->id}"],
+                );
+            } catch (\Throwable $e) {
+                \Illuminate\Support\Facades\Log::warning("Notif/Push admin error (cancelación cliente reserva #{$reservation->id}): {$e->getMessage()}");
+            }
 
             return redirect()->route('reservations.index');
         } catch (\Throwable $e) {

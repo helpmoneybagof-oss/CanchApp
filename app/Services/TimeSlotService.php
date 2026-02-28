@@ -149,7 +149,7 @@ class TimeSlotService
      * Marca slots como reservados definitivamente (pago confirmado).
      * Cancela automáticamente todas las otras pre-reservas del mismo slot.
      */
-    public function markAsReserved(array $slotIds, int $winnerReservationId): void
+    public function markAsReserved(array $slotIds, int $winnerReservationId): array
     {
         TimeSlot::whereIn('id', $slotIds)->update(['status' => 'reserved']);
 
@@ -171,6 +171,8 @@ class TimeSlotService
         }
 
         $this->broadcastSlotChanges($slotIds);
+
+        return $otherReservationIds;
     }
 
     /**

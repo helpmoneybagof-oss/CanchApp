@@ -22,6 +22,7 @@ Route::middleware(['auth', 'verified', 'admin'])->prefix('admin')->name('admin.'
     Route::patch('/reservations/{reservation}/pay', [ReservationController::class, 'markAsPaid'])->name('reservations.pay');
     Route::patch('/reservations/{reservation}/approve-payment', [ReservationController::class, 'approvePayment'])->name('reservations.approve-payment');
     Route::patch('/reservations/{reservation}/reject-payment', [ReservationController::class, 'rejectPayment'])->name('reservations.reject-payment');
+    Route::delete('/reservations/{reservation}/dismiss-payment', [ReservationController::class, 'dismissPayment'])->name('reservations.dismiss-payment');
     Route::get('/payments/pending', [ReservationController::class, 'pendingPayments'])->name('payments.pending');
 
     // Calendario admin

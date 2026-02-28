@@ -3,6 +3,9 @@
 namespace App\Jobs;
 
 use App\Models\Reservation;
+use App\Notifications\ReservationCancelledNotification;
+use App\Services\NotificationService;
+use App\Services\PushNotificationService;
 use App\Services\TimeSlotService;
 use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldQueue;
@@ -16,10 +19,11 @@ class ExpireUnpaidReservations implements ShouldQueue
 {
     use Dispatchable, InteractsWithQueue, Queueable, SerializesModels;
 
-    public function handle(TimeSlotService $slotService): void
+    public function handle(TimeSlotService $slotService, NotificationService $notif, PushNotificationService $push): void
     {
         // Buscar reservas con payment_expires_at vencido y sin pago confirmado
-        $expired = Reservation::whereIn('payment_status', ['unpaid', 'pending_payment'])
+        $expired = Reservation::with('user')
+            ->whereIn('payment_status', ['unpaid', 'pending_payment'])
             ->whereNotNull('payment_expires_at')
             ->where('payment_expires_at', '<=', now())
             ->whereNotIn('status', ['cancelled', 'completed'])
@@ -43,6 +47,21 @@ class ExpireUnpaidReservations implements ShouldQueue
                 DB::commit();
 
                 Log::info("Reserva #{$reservation->id} expirada por falta de pago.");
+
+                // Notificar al cliente (DB + Push)
+                if ($reservation->user) {
+                    try {
+                        $notif->notifyUser($reservation->user, new ReservationCancelledNotification($reservation));
+                        $push->sendToUser(
+                            userId: $reservation->user_id,
+                            title:  '⏰ Reserva expirada',
+                            body:   "Tu reserva #{$reservation->confirmation_code} expiró por falta de pago y fue cancelada automáticamente.",
+                            data:   ['url' => '/reservations'],
+                        );
+                    } catch (\Throwable $e) {
+                        Log::warning("Notif/Push cliente error (expiración reserva #{$reservation->id}): {$e->getMessage()}");
+                    }
+                }
             } catch (\Throwable $e) {
                 DB::rollBack();
                 Log::error("Error al expirar reserva #{$reservation->id}: {$e->getMessage()}");

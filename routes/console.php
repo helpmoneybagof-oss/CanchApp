@@ -31,7 +31,7 @@ Schedule::call(function () {
         SendReservationReminder::dispatch($reservation, '24 horas');
     }
 
-    // Recordatorio 2 horas antes
+    // Recordatorio 2 horas antes (email)
     $target2h = $now->copy()->addHours(2);
     $reservations2h = Reservation::with(['user', 'court'])
         ->where('status', 'confirmed')
@@ -42,6 +42,19 @@ Schedule::call(function () {
 
     foreach ($reservations2h as $reservation) {
         SendReservationReminder::dispatch($reservation, '2 horas');
+    }
+
+    // Recordatorio 1 hora antes (Push + campana)
+    $target1h = $now->copy()->addHours(1);
+    $reservations1h = Reservation::with(['user', 'court'])
+        ->where('status', 'confirmed')
+        ->whereDate('date', $target1h->toDateString())
+        ->whereTime('start_time', '>=', $target1h->format('H:00:00'))
+        ->whereTime('start_time', '<',  $target1h->copy()->addHour()->format('H:00:00'))
+        ->get();
+
+    foreach ($reservations1h as $reservation) {
+        \App\Jobs\SendReservationPushReminder::dispatch($reservation, '1 hora');
     }
 })->hourly()->name('send-reservation-reminders');
 

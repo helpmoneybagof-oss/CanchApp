@@ -93,7 +93,8 @@ class Reservation extends Model
 
     public function scopeActive($query)
     {
-        return $query->whereIn('status', ['pending', 'confirmed']);
+        return $query->whereIn('status', ['pending', 'confirmed'])
+            ->where('date', '>=', now()->toDateString());
     }
 
     public function scopeForDate($query, string $date)

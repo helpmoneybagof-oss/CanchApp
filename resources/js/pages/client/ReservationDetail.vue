@@ -48,6 +48,21 @@ const statusColor: Record<string, string> = {
     completed: 'bg-gray-100 text-gray-600 dark:bg-gray-800 dark:text-gray-400',
 };
 
+const paymentLabel: Record<string, string> = {
+    unpaid:          'Sin pagar',
+    pending_payment: 'Pago pendiente',
+    payment_review:  'En revisión',
+    paid:            'Pagado',
+    rejected:        'Comprobante rechazado',
+};
+const paymentColor: Record<string, string> = {
+    unpaid:          'bg-orange-100 text-orange-700 dark:bg-orange-900/30 dark:text-orange-400',
+    pending_payment: 'bg-amber-100 text-amber-700 dark:bg-amber-900/30 dark:text-amber-400',
+    payment_review:  'bg-blue-100 text-blue-700 dark:bg-blue-900/30 dark:text-blue-400',
+    paid:            'bg-emerald-100 text-emerald-700 dark:bg-emerald-900/30 dark:text-emerald-400',
+    rejected:        'bg-red-100 text-red-700 dark:bg-red-900/30 dark:text-red-400',
+};
+
 const cancelling = ref(false);
 
 function cancel() {
@@ -101,10 +116,8 @@ onUnmounted(() => {
                         {{ statusLabel[reservation.status] }}
                     </span>
                     <span class="rounded-full px-3 py-1 text-xs font-semibold"
-                        :class="reservation.payment_status === 'paid'
-                            ? 'bg-blue-100 text-blue-700 dark:bg-blue-900/30 dark:text-blue-400'
-                            : 'bg-orange-100 text-orange-700 dark:bg-orange-900/30 dark:text-orange-400'">
-                        {{ reservation.payment_status === 'paid' ? 'Pagado' : 'Pago pendiente' }}
+                        :class="paymentColor[reservation.payment_status] ?? 'bg-gray-100 text-gray-600'">
+                        {{ paymentLabel[reservation.payment_status] ?? reservation.payment_status }}
                     </span>
                 </div>
             </div>
@@ -116,10 +129,10 @@ onUnmounted(() => {
                     Cancha y horario
                 </h2>
                 <div class="space-y-2.5">
-                    <div v-if="reservation.court_name" class="flex items-center justify-between">
+                    <div class="flex items-center justify-between">
                         <span class="text-sm text-muted-foreground">Cancha</span>
                         <div class="text-right">
-                            <p class="text-sm font-semibold text-foreground">{{ reservation.court_name }}</p>
+                            <p class="text-sm font-semibold text-foreground">{{ reservation.court_name ?? 'Sin asignar' }}</p>
                             <p v-if="reservation.court_type || reservation.court_surface"
                                 class="text-xs text-muted-foreground">
                                 {{ [reservation.court_type, reservation.court_surface].filter(Boolean).join(' · ') }}
