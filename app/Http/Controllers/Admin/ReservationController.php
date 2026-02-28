@@ -287,13 +287,44 @@ class ReservationController extends Controller
     /**
      * Marcar reserva como pagada.
      */
-    public function markAsPaid(Reservation $reservation, NotificationService $notif, PushNotificationService $push): RedirectResponse
+    public function markAsPaid(Reservation $reservation, NotificationService $notif, PushNotificationService $push, TimeSlotService $slotService): RedirectResponse
     {
         $reservation->load('user');
-        $reservation->update(['payment_status' => 'paid']);
+        $reservation->update([
+            'payment_status' => 'paid',
+            'status'         => 'confirmed',
+        ]);
+
+        // Marcar slots como reservados definitivamente y cancelar otras pre-reservas del mismo slot
+        $slotIds = $reservation->timeSlots()->pluck('time_slots.id')->toArray();
+        $cancelledReservationIds = $slotService->markAsReserved($slotIds, $reservation->id);
 
         // Broadcast en tiempo real
         broadcast(new PaymentApproved($reservation))->toOthers();
+
+        // Notificar a clientes cuyas pre-reservas fueron canceladas (excluyendo al que pagó)
+        if (! empty($cancelledReservationIds)) {
+            try {
+                $losers = Reservation::with('user')
+                    ->whereIn('id', $cancelledReservationIds)
+                    ->where('id', '!=', $reservation->id)
+                    ->get();
+
+                foreach ($losers as $loser) {
+                    if (! $loser->user) continue;
+
+                    $notif->notifyUser($loser->user, new PreReservationCancelledNotification($loser));
+                    $push->sendToUser(
+                        userId: $loser->user_id,
+                        title:  '⏳ Pre-reserva liberada',
+                        body:   'Otro usuario completó el pago primero y se liberó tu pre-reserva. Puedes intentar reservar otro horario.',
+                        data:   ['url' => '/reservations'],
+                    );
+                }
+            } catch (\Throwable $e) {
+                Log::warning("Notif/Push losers error (markAsPaid reserva #{$reservation->id}): {$e->getMessage()}");
+            }
+        }
 
         // Notificación DB + Push al cliente
         try {
@@ -428,6 +459,7 @@ class ReservationController extends Controller
             try {
                 $losers = Reservation::with('user')
                     ->whereIn('id', $cancelledReservationIds)
+                    ->where('id', '!=', $reservation->id)
                     ->get();
 
                 foreach ($losers as $loser) {
