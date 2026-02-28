@@ -407,7 +407,7 @@ const formattedSelectedDate = computed(() => {
         <div class="p-3 lg:p-6 overflow-x-hidden">
 
             <!-- Selector de cancha (desplegable) -->
-            <div v-if="courts.length > 1" class="mb-3">
+            <div v-if="courts.length >= 1" class="mb-3">
                 <div class="relative">
                     <Goal class="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-primary" />
                     <select
