@@ -73,7 +73,14 @@ export async function subscribeToPush(): Promise<void> {
 
         if (Notification.permission !== 'granted') return;
 
-        const registration = await navigator.serviceWorker.ready;
+        // Obtener un service worker registration listo.
+        // En algunos casos (PWA recién instalada / iOS) `navigator.serviceWorker.ready`
+        // puede tardar o no resolver si aún no controla la página.
+        let registration = await navigator.serviceWorker.getRegistration();
+        if (!registration) {
+            // Esperar a que haya un registration disponible
+            registration = await navigator.serviceWorker.ready;
+        }
 
         // Verificar si ya hay una suscripción activa
         let subscription = await registration.pushManager.getSubscription();
