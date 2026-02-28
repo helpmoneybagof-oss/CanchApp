@@ -42,13 +42,13 @@ class SendReservationConfirmed implements ShouldQueue
                 ->send(new NewReservationAdmin($this->reservation));
         }
 
-        // Push al admin: nueva reserva
+        // Push al admin: nueva reserva (con URL al detalle de la reserva)
         try {
             $courtName = $this->reservation->court?->name ?? 'Cancha';
             $push->sendToAdmins(
                 title: '📅 Nueva reserva',
                 body:  "{$this->reservation->user->name} reservó {$courtName} el {$this->reservation->date_formatted}",
-                data:  ['url' => '/admin/reservations'],
+                data:  ['url' => "/admin/reservations/{$this->reservation->id}"],
             );
         } catch (\Throwable $e) {
             Log::warning("Push admin error (reserva #{$this->reservation->id}): {$e->getMessage()}");

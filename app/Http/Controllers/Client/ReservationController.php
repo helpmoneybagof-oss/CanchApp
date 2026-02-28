@@ -271,6 +271,7 @@ class ReservationController extends Controller
                     body:  "{$reservation->user->name} reservó {$courtName} el {$reservation->date_formatted}",
                     data:  ['url' => "/admin/reservations/{$reservation->id}"],
                 );
+
             } catch (\Throwable $e) {
                 \Illuminate\Support\Facades\Log::warning("Notif/Push admin error (nueva reserva #{$reservation->id}): {$e->getMessage()}");
             }
