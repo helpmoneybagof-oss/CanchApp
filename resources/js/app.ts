@@ -2,7 +2,9 @@ import { createInertiaApp, router } from '@inertiajs/vue3';
 import { resolvePageComponent } from 'laravel-vite-plugin/inertia-helpers';
 import type { DefineComponent } from 'vue';
 import { createApp, h } from 'vue';
-import { registerSW } from 'virtual:pwa-register';
+// Service Worker (PWA + Push)
+// En producción lo registramos manualmente para asegurar la ruta correcta (/build/sw-push.js)
+
 import Echo from 'laravel-echo';
 import Pusher from 'pusher-js';
 import '../css/app.css';
@@ -91,9 +93,10 @@ initializeTheme();
 
 // Registrar el Service Worker (PWA + Push notifications)
 if ('serviceWorker' in navigator) {
-    registerSW({
-        onRegistered(registration) {
-            console.log('[PWA] Service Worker registrado:', registration?.scope);
+    window.addEventListener('load', async () => {
+        try {
+            const registration = await navigator.serviceWorker.register('/build/sw-push.js', { scope: '/' });
+            console.log('[PWA] Service Worker registrado:', registration.scope);
 
             // Si ya está instalada como PWA standalone y no ha dado permiso, pedirlo
             const isStandalone = window.matchMedia('(display-mode: standalone)').matches ||
@@ -102,9 +105,8 @@ if ('serviceWorker' in navigator) {
             if (isStandalone && 'Notification' in window && Notification.permission === 'default') {
                 setTimeout(() => Notification.requestPermission(), 1500);
             }
-        },
-        onRegisterError(error) {
+        } catch (error) {
             console.warn('[PWA] Error al registrar Service Worker:', error);
-        },
+        }
     });
 }
