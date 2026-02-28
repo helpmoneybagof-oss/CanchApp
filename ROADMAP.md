@@ -11,8 +11,13 @@
 - UI móvil: barra de navegación inferior más arriba + animación de tap.
 - Push notifications: claves VAPID configurables y soporte runtime para VAPID public key.
 
-### 🔄 Pendiente crítico
-- Push notifications: confirmar que la suscripción se guarda en `push_subscriptions` y que llegan pushes en iPhone/Chrome (PWA instalada). Verificar request `POST /api/push/subscribe` (CSRF/auth) y Service Worker.
+### 🔄 Pendiente crítico (en progreso)
+- Push notifications (iPhone/Chrome PWA):
+  - ✅ Claves VAPID configuradas en Railway.
+  - ✅ Service Worker registrado en producción (Nginx: `Service-Worker-Allowed: /`).
+  - ✅ Panel de diagnóstico en Ajustes/Perfil (`/api/push/status` + `/api/push/test`).
+  - ⏳ Falta: que el dispositivo cree la **suscripción Push** (PushManager.subscribe) y se guarde en `push_subscriptions`.
+  - ⏳ Falta: confirmar recepción y navegación al tocar la push (service worker `notificationclick`).
 
 ---
 **Stack:** Laravel 12 + Vue 3 + Inertia.js + TypeScript + Tailwind CSS v4 + MySQL  
