@@ -1,4 +1,20 @@
 # 🏟️ Sistema de Gestión de Reservas — Cancha Sintética
+
+## 📌 Estado actual (Feb 2026)
+
+### ✅ Cambios recientes (deploy Railway)
+- WebSockets (Reverb): configuración en runtime (evita `localhost` en producción).
+- PWA: fix `manifest.webmanifest` en producción.
+- Notificaciones (campana): UI mejorada y navegación al tocar una notificación.
+- Admin: opción en Ajustes para **cambiar contraseña**.
+- Seed inicial en producción (creación de usuario admin) y mejoras de despliegue.
+- UI móvil: barra de navegación inferior más arriba + animación de tap.
+- Push notifications: claves VAPID configurables y soporte runtime para VAPID public key.
+
+### 🔄 Pendiente crítico
+- Push notifications: confirmar que la suscripción se guarda en `push_subscriptions` y que llegan pushes en iPhone/Chrome (PWA instalada). Verificar request `POST /api/push/subscribe` (CSRF/auth) y Service Worker.
+
+---
 **Stack:** Laravel 12 + Vue 3 + Inertia.js + TypeScript + Tailwind CSS v4 + MySQL  
 **Última actualización:** 27 Febrero 2026 (Round 12 — Fix carga de slots en calendario cliente)  
 
