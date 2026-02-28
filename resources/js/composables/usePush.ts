@@ -39,6 +39,7 @@ async function saveSubscription(subscription: PushSubscription): Promise<void> {
         credentials: 'same-origin',
         headers: {
             'Content-Type': 'application/json',
+            'Accept': 'application/json',
             'X-CSRF-TOKEN': (document.querySelector('meta[name="csrf-token"]') as HTMLMetaElement)?.content ?? '',
             'X-Requested-With': 'XMLHttpRequest',
         },
