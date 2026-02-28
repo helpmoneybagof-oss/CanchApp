@@ -1,6 +1,8 @@
 import { ref } from 'vue';
 
-const VAPID_PUBLIC_KEY = import.meta.env.VITE_VAPID_PUBLIC_KEY as string;
+// Leer VAPID key desde PHP runtime (inyectada en app.blade.php) con fallback a Vite
+const VAPID_PUBLIC_KEY: string =
+    (window as any).__vapid_public_key__ || (import.meta.env.VITE_VAPID_PUBLIC_KEY as string) || '';
 
 const isSupported = ref(
     typeof window !== 'undefined' &&

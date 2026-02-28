@@ -3,6 +3,7 @@ import { ref, onMounted, onUnmounted, computed } from 'vue';
 import { Bell, Check, CheckCheck, Trash2, X } from 'lucide-vue-next';
 import { router } from '@inertiajs/vue3';
 import axios from 'axios';
+import NotificationPanelContent from '@/components/NotificationPanelContent.vue';
 
 interface Notification {
     id: string;
@@ -74,7 +75,10 @@ async function remove(n: Notification) {
 function handleClick(n: Notification) {
     markRead(n);
     open.value = false;
-    if (n.url) router.visit(n.url);
+    if (n.url) {
+        // Pequeño delay para que el bottom sheet se cierre antes de navegar
+        setTimeout(() => router.visit(n.url as string), 150);
+    }
 }
 
 // ── Tiempo relativo ────────────────────────────────────────────────────────────
@@ -150,7 +154,7 @@ onUnmounted(() => {
             </span>
         </button>
 
-        <!-- Dropdown -->
+        <!-- Dropdown desktop (lg+) -->
         <Transition
             enter-active-class="transition duration-150 ease-out"
             enter-from-class="opacity-0 scale-95 translate-y-1"
@@ -160,86 +164,66 @@ onUnmounted(() => {
             leave-to-class="opacity-0 scale-95 translate-y-1"
         >
             <div v-if="open"
-                class="absolute right-0 z-50 mt-2 w-80 origin-top-right overflow-hidden rounded-2xl border border-border bg-background shadow-xl"
-                style="max-height: min(480px, 80vh); display: flex; flex-direction: column;"
+                class="absolute right-0 z-50 mt-2 hidden w-80 origin-top-right overflow-hidden rounded-2xl border border-border bg-background shadow-xl lg:flex lg:flex-col"
+                style="max-height: min(480px, 80vh);"
             >
-                <!-- Header -->
-                <div class="flex items-center justify-between border-b border-border px-4 py-3">
-                    <div class="flex items-center gap-2">
-                        <Bell class="h-4 w-4 text-primary" />
-                        <h3 class="text-sm font-bold text-foreground">Notificaciones</h3>
-                        <span v-if="unreadCount > 0"
-                            class="rounded-full bg-red-100 px-1.5 py-0.5 text-[10px] font-bold text-red-600 dark:bg-red-950 dark:text-red-400">
-                            {{ unreadCount }} nueva{{ unreadCount !== 1 ? 's' : '' }}
-                        </span>
-                    </div>
-                    <div class="flex items-center gap-1">
-                        <button v-if="unreadCount > 0" @click="markAllRead"
-                            class="flex items-center gap-1 rounded-lg px-2 py-1 text-xs font-medium text-primary transition hover:bg-primary/10"
-                            title="Marcar todas como leídas">
-                            <CheckCheck class="h-3.5 w-3.5" />
-                            Todas leídas
-                        </button>
-                        <button @click="open = false"
-                            class="flex h-7 w-7 items-center justify-center rounded-lg text-muted-foreground transition hover:bg-muted">
-                            <X class="h-3.5 w-3.5" />
-                        </button>
-                    </div>
-                </div>
-
-                <!-- Lista -->
-                <div class="overflow-y-auto">
-                    <!-- Loading -->
-                    <div v-if="loading" class="flex items-center justify-center py-8">
-                        <div class="h-5 w-5 animate-spin rounded-full border-2 border-primary border-t-transparent"></div>
-                    </div>
-
-                    <!-- Vacío -->
-                    <div v-else-if="notifications.length === 0"
-                        class="flex flex-col items-center justify-center gap-2 py-10 text-center">
-                        <Bell class="h-8 w-8 text-muted-foreground/30" />
-                        <p class="text-sm text-muted-foreground">Sin notificaciones</p>
-                    </div>
-
-                    <!-- Items -->
-                    <div v-else>
-                        <div
-                            v-for="n in notifications" :key="n.id"
-                            class="group flex cursor-pointer items-start gap-3 border-b border-border/50 px-4 py-3 transition last:border-0"
-                            :class="n.readAt ? 'bg-background hover:bg-muted/50' : 'bg-primary/5 hover:bg-primary/10'"
-                            @click="handleClick(n)"
-                        >
-                            <!-- Ícono / dot no leída -->
-                            <div class="relative mt-0.5 shrink-0">
-                                <span class="text-xl leading-none">{{ n.icon }}</span>
-                                <span v-if="!n.readAt"
-                                    class="absolute -right-1 -top-1 h-2.5 w-2.5 rounded-full bg-primary ring-2 ring-background"></span>
-                            </div>
-
-                            <!-- Contenido -->
-                            <div class="min-w-0 flex-1">
-                                <p class="truncate text-sm font-semibold text-foreground">{{ n.title }}</p>
-                                <p class="mt-0.5 text-xs leading-snug text-muted-foreground line-clamp-2">{{ n.body }}</p>
-                                <p class="mt-1 text-[10px] text-muted-foreground/60">{{ timeAgo(n.createdAt) }}</p>
-                            </div>
-
-                            <!-- Acciones al hover -->
-                            <div class="flex shrink-0 flex-col items-end gap-1 opacity-0 transition group-hover:opacity-100">
-                                <button v-if="!n.readAt" @click.stop="markRead(n)"
-                                    class="flex h-6 w-6 items-center justify-center rounded-md text-primary hover:bg-primary/10"
-                                    title="Marcar como leída">
-                                    <Check class="h-3.5 w-3.5" />
-                                </button>
-                                <button @click.stop="remove(n)"
-                                    class="flex h-6 w-6 items-center justify-center rounded-md text-muted-foreground hover:bg-red-50 hover:text-red-500 dark:hover:bg-red-950"
-                                    title="Eliminar">
-                                    <Trash2 class="h-3.5 w-3.5" />
-                                </button>
-                            </div>
-                        </div>
-                    </div>
-                </div>
+                <NotificationPanelContent
+                    :notifications="notifications"
+                    :unreadCount="unreadCount"
+                    :loading="loading"
+                    @close="open = false"
+                    @markRead="markRead"
+                    @markAllRead="markAllRead"
+                    @remove="remove"
+                    @click="handleClick"
+                />
             </div>
         </Transition>
+
+        <!-- Bottom sheet móvil -->
+        <Teleport to="body">
+            <Transition
+                enter-active-class="transition duration-300 ease-out"
+                enter-from-class="opacity-0"
+                enter-to-class="opacity-100"
+                leave-active-class="transition duration-200 ease-in"
+                leave-from-class="opacity-100"
+                leave-to-class="opacity-0"
+            >
+                <div v-if="open"
+                    class="fixed inset-0 z-50 flex items-end bg-black/50 backdrop-blur-sm lg:hidden"
+                    @click.self="open = false"
+                >
+                    <Transition
+                        enter-active-class="transition duration-300 ease-out"
+                        enter-from-class="translate-y-full"
+                        enter-to-class="translate-y-0"
+                        leave-active-class="transition duration-200 ease-in"
+                        leave-from-class="translate-y-0"
+                        leave-to-class="translate-y-full"
+                    >
+                        <div v-if="open"
+                            class="w-full rounded-t-3xl bg-background shadow-2xl flex flex-col"
+                            style="max-height: 80vh; padding-bottom: env(safe-area-inset-bottom)"
+                        >
+                            <!-- Handle -->
+                            <div class="flex justify-center pt-3 pb-1">
+                                <div class="h-1 w-10 rounded-full bg-muted-foreground/30"></div>
+                            </div>
+                            <NotificationPanelContent
+                                :notifications="notifications"
+                                :unreadCount="unreadCount"
+                                :loading="loading"
+                                @close="open = false"
+                                @markRead="markRead"
+                                @markAllRead="markAllRead"
+                                @remove="remove"
+                                @click="handleClick"
+                            />
+                        </div>
+                    </Transition>
+                </div>
+            </Transition>
+        </Teleport>
     </div>
 </template>

@@ -49,7 +49,7 @@
         <link rel="preconnect" href="https://fonts.bunny.net">
         <link href="https://fonts.bunny.net/css?family=instrument-sans:400,500,600" rel="stylesheet" />
 
-        {{-- Reverb config inyectada desde PHP para evitar depender de VITE_* en build time --}}
+        {{-- Config inyectada desde PHP para evitar depender de VITE_* en build time --}}
         <script>
             window.__reverb__ = {
                 key: '{{ config('broadcasting.connections.reverb.key') }}',
@@ -57,6 +57,7 @@
                 port: {{ (int) config('broadcasting.connections.reverb.options.port', 443) }},
                 scheme: '{{ config('broadcasting.connections.reverb.options.scheme', 'https') }}',
             };
+            window.__vapid_public_key__ = '{{ config('app.vapid_public_key', '') }}';
         </script>
 
         @vite(['resources/js/app.ts', "resources/js/pages/{$page['component']}.vue"])
