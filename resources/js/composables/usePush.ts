@@ -74,13 +74,9 @@ export async function subscribeToPush(): Promise<void> {
         if (Notification.permission !== 'granted') return;
 
         // Obtener un service worker registration listo.
-        // En algunos casos (PWA recién instalada / iOS) `navigator.serviceWorker.ready`
-        // puede tardar o no resolver si aún no controla la página.
-        let registration = await navigator.serviceWorker.getRegistration();
-        if (!registration) {
-            // Esperar a que haya un registration disponible
-            registration = await navigator.serviceWorker.ready;
-        }
+        // Nota: para poder usar PushManager de forma fiable, el SW debe estar *activo* y controlando la página.
+        // `ready` garantiza eso.
+        const registration = await navigator.serviceWorker.ready;
 
         // Verificar si ya hay una suscripción activa
         let subscription = await registration.pushManager.getSubscription();
@@ -94,8 +90,8 @@ export async function subscribeToPush(): Promise<void> {
 
         await saveSubscription(subscription);
     } catch (error) {
-        // El usuario rechazó o hay un error — no hacer nada
         console.warn('[Push] No se pudo suscribir:', error);
+        throw error;
     }
 }
 

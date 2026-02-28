@@ -55,7 +55,11 @@ async function refreshStatus() {
 }
 
 async function ensureSubscribed() {
-    await subscribeToPush();
+    try {
+        await subscribeToPush();
+    } catch (e: any) {
+        error.value = e?.message ?? 'No se pudo crear la suscripción push';
+    }
     await refreshStatus();
 }
 
