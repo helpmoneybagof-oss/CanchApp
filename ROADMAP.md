@@ -2,17 +2,19 @@
 
 ## 📌 Estado actual (Feb 2026)
 
-### ✅ Cambios recientes (Round 13 — Notificaciones y fixes)
-- Push notifications: flujo completo admin ↔ cliente implementado y corregido.
-- Notificar cliente cuando reserva expira por falta de pago (`ExpireUnpaidReservations`).
-- Notificar cliente cuando admin marca pago manualmente (`markAsPaid`).
-- `PendingPayments`: reservas canceladas con comprobante muestran badge + botón "Descartar".
+### ✅ Cambios recientes (Round 14 — Fixes críticos de slots, pagos y notificaciones)
+- `releaseSlots()`: ahora libera slots en estado `reserved` al cancelar reserva pagada (fix crítico).
+- `markAsPaid()`: ahora llama a `markAsReserved()` — el calendario se actualiza correctamente.
+- `markAsPaid()`: también cambia `status = confirmed` y notifica losers de pre-reservas.
+- `approvePayment()` y `markAsPaid()`: ya no envían "pre-reserva liberada" al cliente que pagó.
+- `PendingPayments`: reservas canceladas con comprobante muestran badge rojo + botón "Descartar".
 - `scopeActive`: solo cuenta reservas **futuras** (fix bloqueo por reservas pasadas).
-- `ReservationDetail`: cancha siempre visible + badges de pago con todos los estados.
-- `court_id` agregado a `$fillable` en `Reservation` (se ignoraba silenciosamente).
+- `ReservationDetail`: cancha siempre visible + badges de pago con todos los estados correctos.
+- `court_id` agregado a `$fillable` en `Reservation` (se ignoraba silenciosamente al crear).
 - `SendReservationConfirmed`: push al admin ahora lleva URL al detalle de la reserva.
-- Push notifications: tag único por notificación (ya no se sobreescriben).
-- Nueva ruta `DELETE /admin/reservations/{id}/dismiss-payment`.
+- Push notifications: tag único por notificación (ya no se sobreescriben entre sí).
+- Body del comprobante recortado (sin texto redundante).
+- Limpieza de datos de prueba en producción vía migración.
 
 ### 🔄 Pendiente crítico (en progreso)
 - Push notifications (iPhone/Chrome PWA):
@@ -22,9 +24,13 @@
   - ⏳ Falta: que el dispositivo cree la **suscripción Push** (PushManager.subscribe) y se guarde en `push_subscriptions`.
   - ⏳ Falta: confirmar recepción y navegación al tocar la push (service worker `notificationclick`).
 
+### ⚠️ Pendiente — limpiar después del deploy
+- Borrar migración `2026_02_27_235900_clean_test_data.php` (migración de un solo uso).
+- Borrar comando `app/Console/Commands/CleanTestData.php`.
+
 ---
 **Stack:** Laravel 12 + Vue 3 + Inertia.js + TypeScript + Tailwind CSS v4 + MySQL  
-**Última actualización:** 27 Febrero 2026 (Round 13 — Notificaciones push y fixes de reservas)  
+**Última actualización:** 27 Febrero 2026 (Round 14 — Fixes críticos de slots, pagos y notificaciones)  
 
 ---
 

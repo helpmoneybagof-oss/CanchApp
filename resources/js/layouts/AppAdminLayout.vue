@@ -212,7 +212,7 @@ onMounted(() => {
                 class="fixed bottom-0 left-0 right-0 z-50 border-t border-border bg-background/95 backdrop-blur-md lg:hidden"
                 style="padding-bottom: env(safe-area-inset-bottom)"
             >
-                <div class="flex items-center justify-around px-1 py-1">
+                <div class="flex items-center justify-around px-1 py-2">
                     <Link
                         v-for="item in mobileNavItems" :key="item.href" :href="item.href"
                         class="flex flex-col items-center gap-0.5 px-3 py-2 transition-all"
