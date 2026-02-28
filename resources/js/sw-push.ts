@@ -20,8 +20,8 @@ self.addEventListener('push', (event: PushEvent) => {
         badge:   data.badge ?? '/icons/pwa-96.png',
         data:    data.data ?? {},
         vibrate: [200, 100, 200],
-        tag:     'cancha-notification',
-        renotify: true,
+        tag:     `cancha-${Date.now()}`,
+        renotify: false,
     };
 
     event.waitUntil(

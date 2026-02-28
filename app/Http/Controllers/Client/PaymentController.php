@@ -99,7 +99,7 @@ class PaymentController extends Controller
             $notif->notifyAdmins(new PaymentProofSubmittedNotification($reservation));
             $push->sendToAdmins(
                 title: '💳 Nuevo comprobante de pago',
-                body:  "{$reservation->user->name} subió el comprobante de la reserva #{$reservation->confirmation_code}. Revisalo en /admin/payments/pending.",
+                body:  "{$reservation->user->name} subió el comprobante de la reserva #{$reservation->confirmation_code}.",
                 data:  ['url' => '/admin/payments/pending'],
             );
         } catch (\Throwable $e) {
