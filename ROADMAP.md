@@ -2,14 +2,17 @@
 
 ## 📌 Estado actual (Feb 2026)
 
-### ✅ Cambios recientes (deploy Railway)
-- WebSockets (Reverb): configuración en runtime (evita `localhost` en producción).
-- PWA: fix `manifest.webmanifest` en producción.
-- Notificaciones (campana): UI mejorada y navegación al tocar una notificación.
-- Admin: opción en Ajustes para **cambiar contraseña**.
-- Seed inicial en producción (creación de usuario admin) y mejoras de despliegue.
-- UI móvil: barra de navegación inferior más arriba + animación de tap.
-- Push notifications: claves VAPID configurables y soporte runtime para VAPID public key.
+### ✅ Cambios recientes (Round 13 — Notificaciones y fixes)
+- Push notifications: flujo completo admin ↔ cliente implementado y corregido.
+- Notificar cliente cuando reserva expira por falta de pago (`ExpireUnpaidReservations`).
+- Notificar cliente cuando admin marca pago manualmente (`markAsPaid`).
+- `PendingPayments`: reservas canceladas con comprobante muestran badge + botón "Descartar".
+- `scopeActive`: solo cuenta reservas **futuras** (fix bloqueo por reservas pasadas).
+- `ReservationDetail`: cancha siempre visible + badges de pago con todos los estados.
+- `court_id` agregado a `$fillable` en `Reservation` (se ignoraba silenciosamente).
+- `SendReservationConfirmed`: push al admin ahora lleva URL al detalle de la reserva.
+- Push notifications: tag único por notificación (ya no se sobreescriben).
+- Nueva ruta `DELETE /admin/reservations/{id}/dismiss-payment`.
 
 ### 🔄 Pendiente crítico (en progreso)
 - Push notifications (iPhone/Chrome PWA):
@@ -21,7 +24,7 @@
 
 ---
 **Stack:** Laravel 12 + Vue 3 + Inertia.js + TypeScript + Tailwind CSS v4 + MySQL  
-**Última actualización:** 27 Febrero 2026 (Round 12 — Fix carga de slots en calendario cliente)  
+**Última actualización:** 27 Febrero 2026 (Round 13 — Notificaciones push y fixes de reservas)  
 
 ---
 
