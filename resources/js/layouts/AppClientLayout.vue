@@ -187,15 +187,15 @@ const currentTitle = computed(() =>
             <!-- Bottom nav móvil -->
             <nav
                 class="fixed bottom-0 left-0 right-0 z-50 border-t border-border bg-background/95 backdrop-blur-md lg:hidden"
-                style="padding-bottom: calc(env(safe-area-inset-bottom) + 6px)"
+                style="padding-bottom: calc(env(safe-area-inset-bottom) + 12px)"
             >
-                <div class="flex items-center justify-around px-1 py-1">
+                <div class="flex items-center justify-around px-1 py-2">
                     <Link
                         v-for="item in navItems" :key="item.href" :href="item.href"
-                        class="flex flex-col items-center gap-0.5 px-3 py-2 transition-all"
+                        class="flex flex-col items-center gap-0.5 px-3 py-2 rounded-2xl transition-all duration-150 active:scale-75 active:opacity-60"
                         :class="isCurrentUrl(item.href) ? 'text-primary' : 'text-muted-foreground'"
                     >
-                        <component :is="item.icon" class="h-5 w-5"
+                        <component :is="item.icon" class="h-5 w-5 transition-transform duration-150"
                             :class="isCurrentUrl(item.href) ? 'stroke-[2.5px]' : 'stroke-[1.5px]'" />
                         <span class="text-[10px] font-medium leading-none"
                             :class="isCurrentUrl(item.href) ? 'font-semibold' : ''">
