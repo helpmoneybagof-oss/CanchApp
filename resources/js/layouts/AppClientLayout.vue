@@ -147,7 +147,7 @@ const currentTitle = computed(() =>
             </header>
 
             <!-- Page content -->
-            <main class="flex-1 pb-20 lg:pb-0">
+            <main class="flex-1 pb-24 lg:pb-0">
                 <slot />
             </main>
 
@@ -187,7 +187,7 @@ const currentTitle = computed(() =>
             <!-- Bottom nav móvil -->
             <nav
                 class="fixed bottom-0 left-0 right-0 z-50 border-t border-border bg-background/95 backdrop-blur-md lg:hidden"
-                style="padding-bottom: env(safe-area-inset-bottom)"
+                style="padding-bottom: calc(env(safe-area-inset-bottom) + 6px)"
             >
                 <div class="flex items-center justify-around px-1 py-1">
                     <Link
