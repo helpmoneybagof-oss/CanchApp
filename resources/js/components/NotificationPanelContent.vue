@@ -37,21 +37,21 @@ function timeAgo(dateStr: string): string {
 
 <template>
     <!-- Header -->
-    <div class="flex shrink-0 items-center justify-between border-b border-border px-4 py-3">
-        <div class="flex items-center gap-2">
-            <Bell class="h-4 w-4 text-primary" />
-            <h3 class="text-sm font-bold text-foreground">Notificaciones</h3>
+    <div class="flex shrink-0 items-start justify-between gap-2 border-b border-border px-4 py-3">
+        <div class="min-w-0 flex flex-1 flex-wrap items-center gap-x-2 gap-y-1">
+            <Bell class="h-4 w-4 shrink-0 text-primary" />
+            <h3 class="shrink-0 text-sm font-bold text-foreground">Notificaciones</h3>
             <span v-if="unreadCount > 0"
-                class="rounded-full bg-red-100 px-1.5 py-0.5 text-[10px] font-bold text-red-600 dark:bg-red-950 dark:text-red-400">
+                class="shrink-0 whitespace-nowrap rounded-full bg-red-100 px-2 py-0.5 text-[10px] font-bold leading-none text-red-600 dark:bg-red-950 dark:text-red-400">
                 {{ unreadCount }} nueva{{ unreadCount !== 1 ? 's' : '' }}
             </span>
         </div>
-        <div class="flex items-center gap-1">
+        <div class="flex shrink-0 items-center gap-1">
             <button v-if="unreadCount > 0" @click="emit('markAllRead')"
-                class="flex items-center gap-1 rounded-lg px-2 py-1 text-xs font-medium text-primary transition hover:bg-primary/10"
+                class="flex items-center gap-1 rounded-lg px-2 py-1 text-xs font-semibold text-primary transition hover:bg-primary/10"
                 title="Marcar todas como leídas">
                 <CheckCheck class="h-3.5 w-3.5" />
-                Todas leídas
+                <span class="hidden sm:inline">Todas leídas</span>
             </button>
             <button @click="emit('close')"
                 class="flex h-7 w-7 items-center justify-center rounded-lg text-muted-foreground transition hover:bg-muted">
