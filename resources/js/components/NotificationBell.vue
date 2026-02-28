@@ -160,7 +160,7 @@ onUnmounted(() => {
             </span>
         </button>
 
-        <!-- Dropdown desktop (lg+) -->
+        <!-- Panel (popover anclado a la campana, responsive) -->
         <Transition
             enter-active-class="transition duration-150 ease-out"
             enter-from-class="opacity-0 scale-95 translate-y-1"
@@ -171,8 +171,8 @@ onUnmounted(() => {
         >
             <div v-if="open"
                 data-notification-panel
-                class="absolute right-0 z-50 mt-2 hidden w-80 origin-top-right overflow-hidden rounded-2xl border border-border bg-background shadow-xl lg:flex lg:flex-col"
-                style="max-height: min(480px, 80vh);"
+                class="absolute right-0 z-50 mt-2 origin-top-right overflow-hidden rounded-2xl border border-border bg-background shadow-xl flex flex-col"
+                style="max-height: min(520px, 75vh); width: min(20rem, calc(100vw - 1.25rem));"
             >
                 <NotificationPanelContent
                     :notifications="notifications"
@@ -186,52 +186,5 @@ onUnmounted(() => {
                 />
             </div>
         </Transition>
-
-        <!-- Bottom sheet móvil -->
-        <Teleport to="body">
-            <Transition
-                enter-active-class="transition duration-300 ease-out"
-                enter-from-class="opacity-0"
-                enter-to-class="opacity-100"
-                leave-active-class="transition duration-200 ease-in"
-                leave-from-class="opacity-100"
-                leave-to-class="opacity-0"
-            >
-                <div v-if="open"
-                    class="fixed inset-0 z-50 flex items-end bg-black/50 backdrop-blur-sm lg:hidden"
-                    @click.self="open = false"
-                >
-                    <Transition
-                        enter-active-class="transition duration-300 ease-out"
-                        enter-from-class="translate-y-full"
-                        enter-to-class="translate-y-0"
-                        leave-active-class="transition duration-200 ease-in"
-                        leave-from-class="translate-y-0"
-                        leave-to-class="translate-y-full"
-                    >
-                        <div v-if="open"
-                            data-notification-panel
-                            class="w-full rounded-t-3xl bg-background shadow-2xl flex flex-col"
-                            style="max-height: 80vh; padding-bottom: env(safe-area-inset-bottom)"
-                        >
-                            <!-- Handle -->
-                            <div class="flex justify-center pt-3 pb-1">
-                                <div class="h-1 w-10 rounded-full bg-muted-foreground/30"></div>
-                            </div>
-                            <NotificationPanelContent
-                                :notifications="notifications"
-                                :unreadCount="unreadCount"
-                                :loading="loading"
-                                @close="open = false"
-                                @markRead="markRead"
-                                @markAllRead="markAllRead"
-                                @remove="remove"
-                                @click="handleClick"
-                            />
-                        </div>
-                    </Transition>
-                </div>
-            </Transition>
-        </Teleport>
     </div>
 </template>

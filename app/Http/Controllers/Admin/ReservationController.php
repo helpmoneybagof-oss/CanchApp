@@ -355,7 +355,7 @@ class ReservationController extends Controller
                 userId: $reservation->user_id,
                 title:  '✅ Pago aprobado',
                 body:   "Tu pago para la reserva #{$reservation->confirmation_code} fue aprobado. ¡Nos vemos en la cancha!",
-                data:   ['url' => '/reservations'],
+                data:   ['url' => "/reservations/{$reservation->id}"],
             );
         } catch (\Throwable $e) {
             Log::warning("Notif/Push cliente error (aprobación reserva #{$reservation->id}): {$e->getMessage()}");
