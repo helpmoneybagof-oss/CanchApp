@@ -11,7 +11,35 @@ const error = ref<string | null>(null);
 
 const vapid = computed(() => (window as any).__vapid_public_key__ || '');
 
+const swScope = ref<string | null>(null);
+const hasBrowserSubscription = ref<boolean | null>(null);
+
+async function refreshClientState() {
+    try {
+        if (!('serviceWorker' in navigator)) {
+            swScope.value = null;
+            hasBrowserSubscription.value = null;
+            return;
+        }
+
+        const reg = await navigator.serviceWorker.getRegistration();
+        swScope.value = reg?.scope ?? null;
+
+        if (reg && 'pushManager' in reg) {
+            const sub = await reg.pushManager.getSubscription();
+            hasBrowserSubscription.value = !!sub;
+        } else {
+            hasBrowserSubscription.value = null;
+        }
+    } catch {
+        // Si algo falla, no romper la UI
+        swScope.value = null;
+        hasBrowserSubscription.value = null;
+    }
+}
+
 async function refreshStatus() {
+    await refreshClientState();
     loading.value = true;
     error.value = null;
     try {
@@ -84,6 +112,15 @@ onMounted(() => {
             <div class="flex items-center justify-between rounded-xl bg-muted/40 px-3 py-2">
                 <span>VAPID public key (frontend)</span>
                 <span :class="vapid ? 'text-emerald-600' : 'text-red-600'">{{ vapid ? 'OK' : 'Vacía' }}</span>
+            </div>
+            <div class="flex items-center justify-between rounded-xl bg-muted/40 px-3 py-2">
+                <span>Service Worker registrado</span>
+                <span :class="swScope ? 'text-emerald-600' : 'text-red-600'">{{ swScope ? 'Sí' : 'No' }}</span>
+            </div>
+            <div class="flex items-center justify-between rounded-xl bg-muted/40 px-3 py-2">
+                <span>Suscripción en el dispositivo</span>
+                <span v-if="hasBrowserSubscription === null" class="text-muted-foreground">—</span>
+                <span v-else :class="hasBrowserSubscription ? 'text-emerald-600' : 'text-red-600'">{{ hasBrowserSubscription ? 'Sí' : 'No' }}</span>
             </div>
 
             <div class="flex items-center justify-between rounded-xl bg-muted/40 px-3 py-2" v-if="status">
