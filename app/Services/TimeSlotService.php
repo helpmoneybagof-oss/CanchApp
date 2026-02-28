@@ -177,7 +177,8 @@ class TimeSlotService
 
     /**
      * Libera slots (los vuelve a disponible).
-     * Solo los libera si no hay otras reservas activas (pre_reserved) sobre ellos.
+     * Si hay otras pre-reservas activas, los deja en pre_reserved.
+     * Si no quedan reservas activas (incluyendo el caso de cancelar una reserva pagada), los deja en available.
      */
     public function releaseSlots(array $slotIds): void
     {
@@ -193,12 +194,11 @@ class TimeSlotService
             if ($activeCount > 0) {
                 // Aún hay pre-reservas activas → mantener pre_reserved
                 TimeSlot::where('id', $slotId)
-                    ->where('status', '!=', 'reserved')
                     ->update(['status' => 'pre_reserved']);
             } else {
-                // No quedan pre-reservas → liberar completamente
+                // No quedan reservas activas → liberar completamente (incluso si estaba en reserved)
                 TimeSlot::where('id', $slotId)
-                    ->where('status', '!=', 'reserved')
+                    ->whereNotIn('status', ['blocked'])
                     ->update(['status' => 'available']);
             }
         }
