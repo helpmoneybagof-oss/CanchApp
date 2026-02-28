@@ -114,8 +114,14 @@ function subscribeRealtime(userId: number) {
 
 // ── Cerrar dropdown al hacer clic afuera ──────────────────────────────────────
 function handleOutsideClick(e: MouseEvent) {
+    const target = e.target as HTMLElement | null;
+    if (!target) return;
+
+    // Si el click ocurre dentro del panel (desktop o móvil con Teleport), no cerrar
+    if (target.closest('[data-notification-panel]')) return;
+
     const el = document.getElementById('notification-bell');
-    if (el && !el.contains(e.target as Node)) open.value = false;
+    if (el && !el.contains(target)) open.value = false;
 }
 
 function toggleOpen() {
@@ -164,6 +170,7 @@ onUnmounted(() => {
             leave-to-class="opacity-0 scale-95 translate-y-1"
         >
             <div v-if="open"
+                data-notification-panel
                 class="absolute right-0 z-50 mt-2 hidden w-80 origin-top-right overflow-hidden rounded-2xl border border-border bg-background shadow-xl lg:flex lg:flex-col"
                 style="max-height: min(480px, 80vh);"
             >
@@ -203,6 +210,7 @@ onUnmounted(() => {
                         leave-to-class="translate-y-full"
                     >
                         <div v-if="open"
+                            data-notification-panel
                             class="w-full rounded-t-3xl bg-background shadow-2xl flex flex-col"
                             style="max-height: 80vh; padding-bottom: env(safe-area-inset-bottom)"
                         >
