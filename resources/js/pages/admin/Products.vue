@@ -107,7 +107,13 @@ function save() {
     saving.value = true;
 
     const data = new FormData();
-    Object.entries(form.value).forEach(([k, v]) => data.append(k, String(v)));
+    Object.entries(form.value).forEach(([k, v]) => {
+        if (typeof v === 'boolean') {
+            data.append(k, v ? '1' : '0');
+        } else {
+            data.append(k, String(v));
+        }
+    });
     if (imageFile.value) data.append('image', imageFile.value);
 
     if (editing.value) {
