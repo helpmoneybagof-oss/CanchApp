@@ -229,8 +229,9 @@ html, body {
 }
 
 .fc-theme-custom .fc-timegrid-now-indicator-arrow {
-    border-top-color: var(--primary) !important;
-    border-bottom-color: var(--primary) !important;
+    border-top-color: transparent !important;
+    border-bottom-color: transparent !important;
+    border-left-color: var(--primary) !important;
 }
 
 .fc-theme-custom .fc-event {
