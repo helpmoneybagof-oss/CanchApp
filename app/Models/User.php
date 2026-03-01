@@ -63,4 +63,9 @@ class User extends Authenticatable
     {
         return $this->role === 'client';
     }
+
+    public function reservations(): \Illuminate\Database\Eloquent\Relations\HasMany
+    {
+        return $this->hasMany(\App\Models\Reservation::class);
+    }
 }
