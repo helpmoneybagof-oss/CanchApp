@@ -483,14 +483,6 @@ const formattedSelectedDate = computed(() => {
                     <!-- Fecha seleccionada -->
                     <p class="mb-3 text-sm font-semibold capitalize text-foreground">{{ mobileSelectedDateFormatted }}</p>
 
-                    <!-- Leyenda compacta -->
-                    <div class="mb-3 flex gap-3 overflow-x-auto pb-1 text-xs scrollbar-none">
-                        <div class="flex shrink-0 items-center gap-1"><span class="h-2.5 w-2.5 rounded-full bg-emerald-500"></span><span class="text-muted-foreground">Disponible</span></div>
-                        <div class="flex shrink-0 items-center gap-1"><span class="h-2.5 w-2.5 rounded-full bg-amber-500"></span><span class="text-muted-foreground">Esperando</span></div>
-                        <div class="flex shrink-0 items-center gap-1"><span class="h-2.5 w-2.5 rounded-full bg-blue-500"></span><span class="text-muted-foreground">En verificación</span></div>
-                        <div class="flex shrink-0 items-center gap-1"><span class="h-2.5 w-2.5 rounded-full bg-red-500"></span><span class="text-muted-foreground">Ocupado</span></div>
-                        <div class="flex shrink-0 items-center gap-1"><span class="h-2.5 w-2.5 rounded-full bg-gray-400"></span><span class="text-muted-foreground">Bloqueado</span></div>
-                    </div>
 
                     <!-- Lista de slots -->
                     <div class="space-y-2">
