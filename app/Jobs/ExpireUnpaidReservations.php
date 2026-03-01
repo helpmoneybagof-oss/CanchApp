@@ -2,8 +2,8 @@
 
 namespace App\Jobs;
 
-use App\\Models\\Reservation;
-use App\\Notifications\\ReservationCancelledNotification;
+use App\Models\Reservation;
+use App\Notifications\ReservationCancelledNotification;
 use App\Services\NotificationService;
 use App\Services\PushNotificationService;
 use App\Services\TimeSlotService;
@@ -58,7 +58,7 @@ class ExpireUnpaidReservations implements ShouldQueue
                             body:   "Tu reserva #{$reservation->confirmation_code} expiró por falta de pago y fue cancelada automáticamente.",
                             data:   ['url' => '/reservations'],
                         );
-                    } catch (\\Throwable $e) {
+                    } catch (\Throwable $e) {
                         Log::warning("Notif/Push cliente error (expiración reserva #{$reservation->id}): {$e->getMessage()}");
                     }
                 }

@@ -2,13 +2,13 @@
 
 namespace App\Http\Controllers\Client;
 
-use App\\Events\\PaymentProofSubmitted;
-use App\\Http\\Controllers\\Controller;
-use App\\Models\\Reservation;
-use App\\Models\\Setting;
-use App\\Notifications\\PaymentProofSubmittedNotification;
-use App\\Services\\NotificationService;
-use App\\Services\\PushNotificationService;
+use App\Events\PaymentProofSubmitted;
+use App\Http\Controllers\Controller;
+use App\Models\Reservation;
+use App\Models\Setting;
+use App\Notifications\PaymentProofSubmittedNotification;
+use App\Services\NotificationService;
+use App\Services\PushNotificationService;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;

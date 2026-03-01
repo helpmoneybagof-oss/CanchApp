@@ -13,11 +13,11 @@ use App\Models\Court;
 use App\Models\Reservation;
 use App\Models\TimeSlot;
 use App\Models\User;
-use App\\Notifications\\PaymentApprovedNotification;
-use App\\Notifications\\PaymentRejectedNotification;
-use App\\Notifications\\ReservationCancelledNotification;
-use App\\Notifications\\ReservationCreatedNotification;
-use App\\Notifications\\PreReservationCancelledNotification;
+use App\Notifications\PaymentApprovedNotification;
+use App\Notifications\PaymentRejectedNotification;
+use App\Notifications\ReservationCancelledNotification;
+use App\Notifications\ReservationCreatedNotification;
+use App\Notifications\PreReservationCancelledNotification;
 use App\Services\NotificationService;
 use App\Services\PushNotificationService;
 use App\Services\TimeSlotService;
@@ -530,7 +530,7 @@ class ReservationController extends Controller
                 body:   "Tu comprobante para la reserva #{$reservation->confirmation_code} fue rechazado. Por favor sube uno nuevo.",
                 data:   ['url' => "/reservations/{$reservation->id}/payment"],
             );
-        } catch (\\Throwable $e) {
+        } catch (\Throwable $e) {
             Log::warning("Notif/Push cliente error (rechazo reserva #{$reservation->id}): {$e->getMessage()}");
         }
 
