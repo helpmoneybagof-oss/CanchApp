@@ -23,7 +23,7 @@ class ReservationCreatedNotification extends Notification implements ShouldQueue
         return [
             'type'  => 'reservation_created',
             'title' => '📅 Nueva reserva',
-            'body'  => "{$this->reservation->user->name} reservó el {$this->reservation->slots->first()?->date} a las {$this->reservation->slots->first()?->start_formatted}.",
+            'body'  => "{$this->reservation->user->name} reservó el {$this->reservation->date_formatted} a las {$this->reservation->start_time_formatted}.",
             'icon'  => '📅',
             'url'   => "/admin/reservations/{$this->reservation->id}",
         ];
