@@ -252,6 +252,12 @@ html, body {
     background: color-mix(in srgb, var(--primary) 6%, transparent) !important;
 }
 
+.fc-theme-custom .fc-day-today .fc-col-header-cell-cushion,
+.fc-theme-custom .fc-day-today .fc-daygrid-day-number {
+    color: var(--primary) !important;
+    font-weight: 700 !important;
+}
+
 .fc-theme-custom .fc-button {
     background: var(--primary) !important;
     border-color: var(--primary) !important;

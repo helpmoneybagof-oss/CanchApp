@@ -269,6 +269,7 @@ const mobileDays = computed(() => {
             date: dateStr,
             dow: d.toLocaleDateString('es-CO', { weekday: 'short' }).slice(0, 3),
             num: d.getDate(),
+            isToday: dateStr === props.today,
         });
     }
     return days;
@@ -379,6 +380,12 @@ onMounted(() => {
                         >
                             <span class="text-[10px] font-medium uppercase opacity-70">{{ day.dow }}</span>
                             <span class="text-base font-bold leading-tight">{{ day.num }}</span>
+                            <span
+                                class="mt-0.5 h-1.5 w-1.5 rounded-full transition"
+                                :class="day.isToday
+                                    ? (day.date === mobileSelectedDate ? 'bg-primary-foreground' : 'bg-primary')
+                                    : 'bg-transparent'"
+                            ></span>
                         </button>
                     </div>
 
