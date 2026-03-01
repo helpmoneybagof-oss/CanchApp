@@ -4,6 +4,7 @@ namespace App\Jobs;
 
 use App\Models\Reservation;
 use App\Notifications\ReservationCancelledNotification;
+use App\Notifications\SlotAvailableForPaymentNotification;
 use App\Services\NotificationService;
 use App\Services\PushNotificationService;
 use App\Services\TimeSlotService;
@@ -35,6 +36,9 @@ class ExpireUnpaidReservations implements ShouldQueue
 
                 $slotIds = $reservation->timeSlots()->pluck('time_slots.id')->toArray();
 
+                // Obtener pre-reservados ANTES de liberar los slots
+                $preReservedIds = $slotService->getPreReservedReservationIds($slotIds, $reservation->id);
+
                 // Cancelar primero, luego liberar slots
                 $reservation->update([
                     'status'              => 'cancelled',
@@ -48,7 +52,7 @@ class ExpireUnpaidReservations implements ShouldQueue
 
                 Log::info("Reserva #{$reservation->id} expirada por falta de pago.");
 
-                // Notificar al cliente (DB + Push)
+                // Notificar al cliente que expiró (DB + Push)
                 if ($reservation->user) {
                     try {
                         $notif->notifyUser($reservation->user, new ReservationCancelledNotification($reservation));
@@ -60,6 +64,29 @@ class ExpireUnpaidReservations implements ShouldQueue
                         );
                     } catch (\Throwable $e) {
                         Log::warning("Notif/Push cliente error (expiración reserva #{$reservation->id}): {$e->getMessage()}");
+                    }
+                }
+
+                // Notificar a los pre-reservados que el slot está disponible para pagar
+                if (! empty($preReservedIds)) {
+                    try {
+                        $preReserved = Reservation::with('user')
+                            ->whereIn('id', $preReservedIds)
+                            ->get();
+
+                        foreach ($preReserved as $pre) {
+                            if (! $pre->user) continue;
+
+                            $notif->notifyUser($pre->user, new SlotAvailableForPaymentNotification($pre));
+                            $push->sendToUser(
+                                userId: $pre->user_id,
+                                title:  '💳 ¡Hora de pagar!',
+                                body:   "El horario de tu pre-reserva #{$pre->confirmation_code} está disponible. ¡Sube tu comprobante antes que otro!",
+                                data:   ['url' => "/reservations/{$pre->id}/payment"],
+                            );
+                        }
+                    } catch (\Throwable $e) {
+                        Log::warning("Notif/Push pre-reservados error (expiración reserva #{$reservation->id}): {$e->getMessage()}");
                     }
                 }
             } catch (\Throwable $e) {

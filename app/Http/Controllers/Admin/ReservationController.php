@@ -18,6 +18,7 @@ use App\Notifications\PaymentRejectedNotification;
 use App\Notifications\ReservationCancelledNotification;
 use App\Notifications\ReservationCreatedNotification;
 use App\Notifications\PreReservationCancelledNotification;
+use App\Notifications\SlotAvailableForPaymentNotification;
 use App\Services\NotificationService;
 use App\Services\PushNotificationService;
 use App\Services\TimeSlotService;
@@ -500,23 +501,31 @@ class ReservationController extends Controller
     /**
      * Rechazar pago de una reserva.
      */
-    public function rejectPayment(Request $request, Reservation $reservation, PushNotificationService $push, NotificationService $notif): RedirectResponse
+    public function rejectPayment(Request $request, Reservation $reservation, PushNotificationService $push, NotificationService $notif, TimeSlotService $slotService): RedirectResponse
     {
         $request->validate([
             'reason' => 'nullable|string|max:255',
         ]);
 
         $reservation->load('user');
+
+        // Obtener pre-reservados ANTES de liberar los slots
+        $slotIds = $reservation->timeSlots()->pluck('time_slots.id')->toArray();
+        $preReservedIds = $slotService->getPreReservedReservationIds($slotIds, $reservation->id);
+
         $reservation->update([
             'payment_status'     => 'rejected',
             'payment_proof'      => null,
             'payment_reference'  => null,
         ]);
 
+        // Liberar slots → vuelven a pre_reserved o available
+        $slotService->releaseSlots($slotIds);
+
         // Broadcast en tiempo real
         broadcast(new PaymentRejected($reservation))->toOthers();
 
-        // Notificación DB + Push al cliente
+        // Notificación DB + Push al cliente que fue rechazado
         try {
             $notif->notifyUser($reservation->user, new PaymentRejectedNotification($reservation));
             $push->sendToUser(
@@ -527,6 +536,29 @@ class ReservationController extends Controller
             );
         } catch (\Throwable $e) {
             Log::warning("Notif/Push cliente error (rechazo reserva #{$reservation->id}): {$e->getMessage()}");
+        }
+
+        // Notificar a los pre-reservados que el slot está disponible para pagar
+        if (! empty($preReservedIds)) {
+            try {
+                $preReserved = Reservation::with('user')
+                    ->whereIn('id', $preReservedIds)
+                    ->get();
+
+                foreach ($preReserved as $pre) {
+                    if (! $pre->user) continue;
+
+                    $notif->notifyUser($pre->user, new SlotAvailableForPaymentNotification($pre));
+                    $push->sendToUser(
+                        userId: $pre->user_id,
+                        title:  '💳 ¡Hora de pagar!',
+                        body:   "El horario de tu pre-reserva #{$pre->confirmation_code} está disponible. ¡Sube tu comprobante antes que otro!",
+                        data:   ['url' => "/reservations/{$pre->id}/payment"],
+                    );
+                }
+            } catch (\Throwable $e) {
+                Log::warning("Notif/Push pre-reservados error (rechazo reserva #{$reservation->id}): {$e->getMessage()}");
+            }
         }
 
         return redirect()->back()->with('flash', [
