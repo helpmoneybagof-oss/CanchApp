@@ -122,7 +122,6 @@ class TimeSlotService
     /**
      * Verifica si un conjunto de slots están disponibles para reservar
      * (available o pre_reserved — ambos son reservables).
-     * pending_payment NO es reservable: alguien ya subió comprobante.
      */
     public function areSlotsAvailable(array $slotIds): bool
     {
@@ -131,37 +130,6 @@ class TimeSlotService
             ->count();
 
         return $count === count($slotIds);
-    }
-
-    /**
-     * Marca slots como pending_payment: alguien subió comprobante.
-     * Bloquea nuevas pre-reservas hasta que se apruebe o rechace.
-     */
-    public function markAsPendingPayment(array $slotIds): void
-    {
-        TimeSlot::whereIn('id', $slotIds)
-            ->whereIn('status', ['available', 'pre_reserved'])
-            ->update(['status' => 'pending_payment']);
-
-        $this->broadcastSlotChanges($slotIds);
-    }
-
-    /**
-     * Retorna los IDs de reservas con pre-reserva activa en los slots dados,
-     * excluyendo la reserva ganadora. Usado para notificar a los demás.
-     */
-    public function getPreReservedReservationIds(array $slotIds, int $excludeReservationId): array
-    {
-        return \DB::table('reservation_time_slots')
-            ->join('reservations', 'reservations.id', '=', 'reservation_time_slots.reservation_id')
-            ->whereIn('reservation_time_slots.time_slot_id', $slotIds)
-            ->where('reservation_time_slots.reservation_id', '!=', $excludeReservationId)
-            ->whereNotIn('reservations.status', ['cancelled', 'completed'])
-            ->whereIn('reservations.payment_status', ['unpaid', 'pending_payment'])
-            ->pluck('reservation_time_slots.reservation_id')
-            ->unique()
-            ->values()
-            ->toArray();
     }
 
     /**

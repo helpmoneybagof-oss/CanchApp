@@ -2,15 +2,13 @@
 
 namespace App\Http\Controllers\Client;
 
-use App\Events\PaymentProofSubmitted;
-use App\Http\Controllers\Controller;
-use App\Models\Reservation;
-use App\Models\Setting;
-use App\Notifications\PaymentProofSubmittedNotification;
-use App\Notifications\SlotAvailableForPaymentNotification;
-use App\Services\NotificationService;
-use App\Services\PushNotificationService;
-use App\Services\TimeSlotService;
+use App\\Events\\PaymentProofSubmitted;
+use App\\Http\\Controllers\\Controller;
+use App\\Models\\Reservation;
+use App\\Models\\Setting;
+use App\\Notifications\\PaymentProofSubmittedNotification;
+use App\\Services\\NotificationService;
+use App\\Services\\PushNotificationService;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
@@ -57,7 +55,7 @@ class PaymentController extends Controller
     /**
      * El cliente sube el comprobante de pago Nequi.
      */
-    public function uploadProof(Request $request, Reservation $reservation, PushNotificationService $push, NotificationService $notif, TimeSlotService $slotService): RedirectResponse
+    public function uploadProof(Request $request, Reservation $reservation, PushNotificationService $push, NotificationService $notif): RedirectResponse
     {
         if ($reservation->user_id !== $request->user()->id) {
             abort(403);
@@ -84,12 +82,6 @@ class PaymentController extends Controller
 
         $expiryMinutes = (int) Setting::getValue('payment_expiry_minutes', 30);
 
-        // Obtener los slot IDs ANTES de actualizar, para notificar a los pre-reservados
-        $slotIds = $reservation->timeSlots()->pluck('time_slots.id')->toArray();
-
-        // Obtener reservas con pre-reserva activa en estos slots (excluyendo la actual)
-        $preReservedIds = $slotService->getPreReservedReservationIds($slotIds, $reservation->id);
-
         $reservation->update([
             'payment_method'     => 'nequi',
             'payment_reference'  => $request->reference,
@@ -97,9 +89,6 @@ class PaymentController extends Controller
             'payment_status'     => 'payment_review',
             'payment_expires_at' => now()->addMinutes($expiryMinutes),
         ]);
-
-        // Marcar slots como pending_payment → nadie más puede pre-reservar
-        $slotService->markAsPendingPayment($slotIds);
 
         // Broadcast en tiempo real al admin
         broadcast(new PaymentProofSubmitted($reservation))->toOthers();

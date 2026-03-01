@@ -21,7 +21,7 @@ interface TimeSlot {
     end_time: string;
     start_formatted: string;
     end_formatted: string;
-    status: 'available' | 'pre_reserved' | 'pending_payment' | 'reserved' | 'blocked';
+    status: 'available' | 'pre_reserved' | 'reserved' | 'blocked';
     price: number;
     block_reason: string | null;
     pre_reserved_count: number;
@@ -116,26 +116,22 @@ function updateCalendarEvents(newSlots: TimeSlot[]) {
         id: String(slot.id),
         title: slot.status === 'available' || (slot.status === 'pre_reserved' && slot.pre_reserved_count === 0)
             ? `$${slot.price.toLocaleString()}`
-            : slot.status === 'pending_payment'
-                ? 'Pago en verificación'
-                : slot.status === 'pre_reserved'
-                    ? `${slot.pre_reserved_count} esperando pago`
-                    : slot.status === 'reserved'
-                        ? 'Ocupado'
-                        : slot.block_reason
-                            ? `Bloqueado: ${slot.block_reason}`
-                            : 'Bloqueado',
+            : slot.status === 'pre_reserved'
+                ? `${slot.pre_reserved_count} esperando pago`
+                : slot.status === 'reserved'
+                    ? 'Ocupado'
+                    : slot.block_reason
+                        ? `Bloqueado: ${slot.block_reason}`
+                        : 'Bloqueado',
         start: `${slot.date}T${slot.start_time}`,
         end:   `${slot.date}T${slot.end_time}`,
         backgroundColor:
             (slot.status === 'available' || (slot.status === 'pre_reserved' && slot.pre_reserved_count === 0)) ? '#10b981'
-            : slot.status === 'pending_payment' ? '#3b82f6'
             : slot.status === 'pre_reserved' ? '#f59e0b'
             : slot.status === 'reserved'     ? '#ef4444'
             : '#6b7280',
         borderColor:
             (slot.status === 'available' || (slot.status === 'pre_reserved' && slot.pre_reserved_count === 0)) ? '#059669'
-            : slot.status === 'pending_payment' ? '#2563eb'
             : slot.status === 'pre_reserved' ? '#d97706'
             : slot.status === 'reserved'     ? '#dc2626'
             : '#4b5563',
@@ -200,26 +196,22 @@ const calendarEvents = computed(() =>
         id: String(slot.id),
         title: slot.status === 'available' || (slot.status === 'pre_reserved' && slot.pre_reserved_count === 0)
             ? `$${slot.price.toLocaleString()}`
-            : slot.status === 'pending_payment'
-                ? 'Pago en verificación'
-                : slot.status === 'pre_reserved'
-                    ? `${slot.pre_reserved_count} esperando pago`
-                    : slot.status === 'reserved'
-                        ? 'Ocupado'
-                        : slot.block_reason
-                            ? `Bloqueado: ${slot.block_reason}`
-                            : 'Bloqueado',
+            : slot.status === 'pre_reserved'
+                ? `${slot.pre_reserved_count} esperando pago`
+                : slot.status === 'reserved'
+                    ? 'Ocupado'
+                    : slot.block_reason
+                        ? `Bloqueado: ${slot.block_reason}`
+                        : 'Bloqueado',
         start: `${slot.date}T${slot.start_time}`,
         end:   `${slot.date}T${slot.end_time}`,
         backgroundColor:
             (slot.status === 'available' || (slot.status === 'pre_reserved' && slot.pre_reserved_count === 0)) ? '#10b981'
-            : slot.status === 'pending_payment' ? '#3b82f6'
             : slot.status === 'pre_reserved' ? '#f59e0b'
             : slot.status === 'reserved'   ? '#ef4444'
             : '#6b7280',
         borderColor:
             (slot.status === 'available' || (slot.status === 'pre_reserved' && slot.pre_reserved_count === 0)) ? '#059669'
-            : slot.status === 'pending_payment' ? '#2563eb'
             : slot.status === 'pre_reserved' ? '#d97706'
             : slot.status === 'reserved'   ? '#dc2626'
             : '#4b5563',
@@ -492,20 +484,18 @@ const formattedSelectedDate = computed(() => {
                         <button
                             v-for="slot in mobileDaySlots" :key="slot.id"
                             @click="handleMobileSlotClick(slot)"
-                            :disabled="slot.status === 'reserved' || slot.status === 'blocked' || slot.status === 'pending_payment'"
+                            :disabled="slot.status === 'reserved' || slot.status === 'blocked'"
                             class="flex w-full items-center gap-2.5 rounded-2xl border-2 px-3 py-3 text-left transition active:scale-[0.98] disabled:cursor-not-allowed disabled:opacity-60"
                             :class="[
                                 selectedSlots.find(s => s.id === slot.id) ? 'border-primary' :
                                     slot.status === 'available' || (slot.status === 'pre_reserved' && slot.pre_reserved_count === 0) ? 'border-emerald-200 bg-emerald-50 dark:border-emerald-900 dark:bg-emerald-950/40' :
                                     slot.status === 'pre_reserved' ? 'border-amber-200 bg-amber-50 dark:border-amber-900 dark:bg-amber-950/40' :
-                                    slot.status === 'pending_payment' ? 'border-blue-200 bg-blue-50 dark:border-blue-900 dark:bg-blue-950/40' :
                                     slot.status === 'reserved' ? 'border-red-200 bg-red-50 dark:border-red-900 dark:bg-red-950/40' :
                                     'border-border bg-card'
                             ]"
                         >
                             <span class="h-3 w-3 shrink-0 rounded-full"
                                 :class="slot.status === 'reserved' ? 'bg-red-500' :
-                                    slot.status === 'pending_payment' ? 'bg-blue-500' :
                                     slot.status === 'pre_reserved' && slot.pre_reserved_count > 0 ? 'bg-amber-500' :
                                     slot.status === 'blocked' ? 'bg-gray-400' : 'bg-emerald-500'"
                             ></span>
@@ -513,7 +503,6 @@ const formattedSelectedDate = computed(() => {
                                 <p class="text-sm font-bold text-foreground">{{ slot.start_formatted }} – {{ slot.end_formatted }}</p>
                                 <p class="text-xs text-muted-foreground">
                                     {{ slot.status === 'reserved' ? '🔒 Ocupado' :
-                                       slot.status === 'pending_payment' ? '💳 Pago en verificación' :
                                        slot.status === 'pre_reserved' && slot.pre_reserved_count > 0 ? `⏳ ${slot.pre_reserved_count} esperando pago` :
                                        slot.status === 'blocked' ? `⛔ ${slot.block_reason || 'Bloqueado'}` :
                                        `✅ $${slot.price.toLocaleString()}` }}
