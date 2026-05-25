@@ -24,7 +24,7 @@ Schedule::call(function () {
         ->where('status', 'confirmed')
         ->whereDate('date', $target24h->toDateString())
         ->whereTime('start_time', '>=', $target24h->format('H:00:00'))
-        ->whereTime('start_time', '<',  $target24h->copy()->addHour()->format('H:00:00'))
+        ->whereTime('start_time', '<', $target24h->copy()->addHour()->format('H:00:00'))
         ->get();
 
     foreach ($reservations24h as $reservation) {
@@ -37,7 +37,7 @@ Schedule::call(function () {
         ->where('status', 'confirmed')
         ->whereDate('date', $target2h->toDateString())
         ->whereTime('start_time', '>=', $target2h->format('H:00:00'))
-        ->whereTime('start_time', '<',  $target2h->copy()->addHour()->format('H:00:00'))
+        ->whereTime('start_time', '<', $target2h->copy()->addHour()->format('H:00:00'))
         ->get();
 
     foreach ($reservations2h as $reservation) {
@@ -50,7 +50,7 @@ Schedule::call(function () {
         ->where('status', 'confirmed')
         ->whereDate('date', $target1h->toDateString())
         ->whereTime('start_time', '>=', $target1h->format('H:00:00'))
-        ->whereTime('start_time', '<',  $target1h->copy()->addHour()->format('H:00:00'))
+        ->whereTime('start_time', '<', $target1h->copy()->addHour()->format('H:00:00'))
         ->get();
 
     foreach ($reservations1h as $reservation) {
@@ -59,11 +59,10 @@ Schedule::call(function () {
 })->hourly()->name('send-reservation-reminders');
 
 // ─── Resumen diario al admin (cada mañana a las 7:00 AM) ─────────────────────
-Schedule::job(new SendDailySummary())->dailyAt('07:00')->name('send-daily-summary');
+Schedule::job(new SendDailySummary)->dailyAt('07:00')->name('send-daily-summary');
 
 // ─── Alerta de stock bajo (cada día a las 8:00 AM) ───────────────────────────
-Schedule::job(new SendLowStockAlert())->dailyAt('08:00')->name('send-low-stock-alert');
+Schedule::job(new SendLowStockAlert)->dailyAt('08:00')->name('send-low-stock-alert');
 
 // ─── Expirar reservas sin pago (cada 5 minutos) ───────────────────────────────
-Schedule::job(new ExpireUnpaidReservations())->everyFiveMinutes()->name('expire-unpaid-reservations');
-
+Schedule::job(new ExpireUnpaidReservations)->everyFiveMinutes()->name('expire-unpaid-reservations');

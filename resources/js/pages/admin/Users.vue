@@ -2,8 +2,8 @@
 import { Head, router } from '@inertiajs/vue3';
 import { Search, User, UserCheck, UserX, X, Eye } from 'lucide-vue-next';
 import { ref, computed } from 'vue';
-import AppAdminLayout from '@/layouts/AppAdminLayout.vue';
 import { useToast } from '@/composables/useToast';
+import AppAdminLayout from '@/layouts/AppAdminLayout.vue';
 
 const toast = useToast();
 

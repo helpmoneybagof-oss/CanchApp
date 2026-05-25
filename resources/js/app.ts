@@ -1,11 +1,11 @@
 import { createInertiaApp, router } from '@inertiajs/vue3';
+import Echo from 'laravel-echo';
 import { resolvePageComponent } from 'laravel-vite-plugin/inertia-helpers';
+import Pusher from 'pusher-js';
+import { registerSW } from 'virtual:pwa-register';
 import type { DefineComponent } from 'vue';
 import { createApp, h } from 'vue';
-import { registerSW } from 'virtual:pwa-register';
 
-import Echo from 'laravel-echo';
-import Pusher from 'pusher-js';
 import '../css/app.css';
 import { initializeTheme } from './composables/useAppearance';
 

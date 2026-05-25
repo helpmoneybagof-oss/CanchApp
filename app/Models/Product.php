@@ -25,10 +25,10 @@ class Product extends Model
     protected function casts(): array
     {
         return [
-            'price'    => 'decimal:2',
-            'stock'    => 'integer',
+            'price' => 'decimal:2',
+            'stock' => 'integer',
             'min_stock' => 'integer',
-            'active'   => 'boolean',
+            'active' => 'boolean',
         ];
     }
 
@@ -59,7 +59,10 @@ class Product extends Model
 
     public function getImageUrlAttribute(): ?string
     {
-        if (!$this->image) return null;
-        return asset('storage/' . $this->image);
+        if (! $this->image) {
+            return null;
+        }
+
+        return asset('storage/'.$this->image);
     }
 }

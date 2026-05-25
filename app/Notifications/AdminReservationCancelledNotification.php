@@ -23,11 +23,11 @@ class AdminReservationCancelledNotification extends Notification implements Shou
         $userName = $this->reservation->user?->name ?? 'Un cliente';
 
         return [
-            'type'  => 'reservation_cancelled',
+            'type' => 'reservation_cancelled',
             'title' => '❌ Reserva cancelada',
-            'body'  => "{$userName} canceló la reserva #{$this->reservation->confirmation_code}.",
-            'icon'  => '❌',
-            'url'   => "/admin/reservations/{$this->reservation->id}",
+            'body' => "{$userName} canceló la reserva #{$this->reservation->confirmation_code}.",
+            'icon' => '❌',
+            'url' => "/admin/reservations/{$this->reservation->id}",
         ];
     }
 }

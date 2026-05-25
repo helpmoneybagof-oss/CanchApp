@@ -7,12 +7,17 @@ return new class extends Migration
 {
     public function up(): void
     {
-        // Ampliar el enum de status en time_slots para incluir pre_reserved
-        DB::statement("ALTER TABLE time_slots MODIFY COLUMN status ENUM('available','pre_reserved','reserved','blocked') NOT NULL DEFAULT 'available'");
+        // Ampliar el enum de status en time_slots para incluir pre_reserved.
+        // SQLite no soporta ALTER COLUMN para enums — en tests/CI lo saltamos.
+        if (DB::getDriverName() === 'mysql') {
+            DB::statement("ALTER TABLE time_slots MODIFY COLUMN status ENUM('available','pre_reserved','reserved','blocked') NOT NULL DEFAULT 'available'");
+        }
     }
 
     public function down(): void
     {
-        DB::statement("ALTER TABLE time_slots MODIFY COLUMN status ENUM('available','reserved','blocked') NOT NULL DEFAULT 'available'");
+        if (DB::getDriverName() === 'mysql') {
+            DB::statement("ALTER TABLE time_slots MODIFY COLUMN status ENUM('available','reserved','blocked') NOT NULL DEFAULT 'available'");
+        }
     }
 };

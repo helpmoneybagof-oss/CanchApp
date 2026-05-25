@@ -21,11 +21,11 @@ class PaymentApprovedNotification extends Notification implements ShouldQueue
     public function toArray(object $notifiable): array
     {
         return [
-            'type'  => 'payment_approved',
+            'type' => 'payment_approved',
             'title' => '✅ Pago aprobado',
-            'body'  => "Tu reserva #{$this->reservation->confirmation_code} fue confirmada. ¡Nos vemos en la cancha!",
-            'icon'  => '✅',
-            'url'   => "/reservations/{$this->reservation->id}",
+            'body' => "Tu reserva #{$this->reservation->confirmation_code} fue confirmada. ¡Nos vemos en la cancha!",
+            'icon' => '✅',
+            'url' => "/reservations/{$this->reservation->id}",
         ];
     }
 }

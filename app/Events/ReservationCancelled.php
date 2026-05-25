@@ -3,7 +3,6 @@
 namespace App\Events;
 
 use App\Models\Reservation;
-use Illuminate\Broadcasting\Channel;
 use Illuminate\Broadcasting\InteractsWithSockets;
 use Illuminate\Broadcasting\PrivateChannel;
 use Illuminate\Contracts\Broadcasting\ShouldBroadcast;
@@ -20,7 +19,7 @@ class ReservationCancelled implements ShouldBroadcast
     {
         return [
             new PrivateChannel('admin'),
-            new PrivateChannel('user.' . $this->reservation->user_id),
+            new PrivateChannel('user.'.$this->reservation->user_id),
         ];
     }
 
@@ -32,9 +31,9 @@ class ReservationCancelled implements ShouldBroadcast
     public function broadcastWith(): array
     {
         return [
-            'id'             => $this->reservation->id,
+            'id' => $this->reservation->id,
             'confirmation_code' => $this->reservation->confirmation_code,
-            'user_id'        => $this->reservation->user_id,
+            'user_id' => $this->reservation->user_id,
         ];
     }
 }

@@ -1,10 +1,10 @@
 <script setup lang="ts">
 import { Head, router } from '@inertiajs/vue3';
+import axios from 'axios';
 import { ShoppingBag, Search, X, ShoppingCart, Plus, Minus, ArrowRight, CalendarDays } from 'lucide-vue-next';
 import { ref, computed } from 'vue';
-import AppClientLayout from '@/layouts/AppClientLayout.vue';
 import { useToast } from '@/composables/useToast';
-import axios from 'axios';
+import AppClientLayout from '@/layouts/AppClientLayout.vue';
 
 const toast = useToast();
 

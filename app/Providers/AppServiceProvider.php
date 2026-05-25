@@ -75,23 +75,23 @@ class AppServiceProvider extends ServiceProvider
             $expire = config('auth.passwords.'.config('auth.defaults.passwords').'.expire');
 
             return (new MailMessage)
-                ->subject('Restablecer contraseña — ' . $appName)
+                ->subject('Restablecer contraseña — '.$appName)
                 ->greeting('¡Hola!')
                 ->line('Recibiste este correo porque solicitaste restablecer la contraseña de tu cuenta.')
                 ->action('Restablecer contraseña', $url)
                 ->line("Este enlace expirará en {$expire} minutos.")
                 ->line('Si no solicitaste restablecer tu contraseña, no es necesario hacer nada.')
-                ->salutation('Saludos, ' . $appName);
+                ->salutation('Saludos, '.$appName);
         });
 
         VerifyEmail::toMailUsing(function (mixed $notifiable, string $url) use ($appName): MailMessage {
             return (new MailMessage)
-                ->subject('Verifica tu correo electrónico — ' . $appName)
+                ->subject('Verifica tu correo electrónico — '.$appName)
                 ->greeting('¡Bienvenido/a!')
                 ->line('Haz clic en el botón de abajo para verificar tu dirección de correo electrónico.')
                 ->action('Verificar correo electrónico', $url)
                 ->line('Si no creaste una cuenta, no es necesario hacer nada.')
-                ->salutation('Saludos, ' . $appName);
+                ->salutation('Saludos, '.$appName);
         });
     }
 
@@ -103,12 +103,12 @@ class AppServiceProvider extends ServiceProvider
     {
         // Solo si la tabla settings existe (evita error en migraciones fresh)
         try {
-            $host       = \App\Models\Setting::getValue('mail_host');
-            $port       = \App\Models\Setting::getValue('mail_port');
-            $username   = \App\Models\Setting::getValue('mail_username');
-            $password   = \App\Models\Setting::getValue('mail_password');
-            $fromAddr   = \App\Models\Setting::getValue('mail_from_address');
-            $fromName   = \App\Models\Setting::getValue('mail_from_name');
+            $host = \App\Models\Setting::getValue('mail_host');
+            $port = \App\Models\Setting::getValue('mail_port');
+            $username = \App\Models\Setting::getValue('mail_username');
+            $password = \App\Models\Setting::getValue('mail_password');
+            $fromAddr = \App\Models\Setting::getValue('mail_from_address');
+            $fromName = \App\Models\Setting::getValue('mail_from_name');
             $encryption = \App\Models\Setting::getValue('mail_encryption', 'tls');
 
             if ($host && $port && $username) {

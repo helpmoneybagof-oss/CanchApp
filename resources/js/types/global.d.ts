@@ -1,8 +1,8 @@
 /// <reference types="vite-plugin-pwa/client" />
 
-import type { Auth } from '@/types/auth';
 import type Echo from 'laravel-echo';
 import type Pusher from 'pusher-js';
+import type { Auth } from '@/types/auth';
 
 // Extend ImportMeta interface for Vite...
 declare module 'vite/client' {

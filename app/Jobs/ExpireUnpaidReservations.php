@@ -37,9 +37,9 @@ class ExpireUnpaidReservations implements ShouldQueue
 
                 // Cancelar primero, luego liberar slots
                 $reservation->update([
-                    'status'              => 'cancelled',
+                    'status' => 'cancelled',
                     'cancellation_reason' => 'Reserva expirada por falta de pago',
-                    'payment_status'      => 'unpaid',
+                    'payment_status' => 'unpaid',
                 ]);
 
                 $slotService->releaseSlots($slotIds);
@@ -54,9 +54,9 @@ class ExpireUnpaidReservations implements ShouldQueue
                         $notif->notifyUser($reservation->user, new ReservationCancelledNotification($reservation));
                         $push->sendToUser(
                             userId: $reservation->user_id,
-                            title:  '⏰ Reserva expirada',
-                            body:   "Tu reserva #{$reservation->confirmation_code} expiró por falta de pago y fue cancelada automáticamente.",
-                            data:   ['url' => '/reservations'],
+                            title: '⏰ Reserva expirada',
+                            body: "Tu reserva #{$reservation->confirmation_code} expiró por falta de pago y fue cancelada automáticamente.",
+                            data: ['url' => '/reservations'],
                         );
                     } catch (\Throwable $e) {
                         Log::warning("Notif/Push cliente error (expiración reserva #{$reservation->id}): {$e->getMessage()}");

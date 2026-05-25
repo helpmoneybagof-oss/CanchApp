@@ -16,16 +16,16 @@ class PushSubscriptionController extends Controller
     {
         $request->validate([
             'endpoint' => 'required|string',
-            'p256dh'   => 'required|string',
-            'auth'     => 'required|string',
+            'p256dh' => 'required|string',
+            'auth' => 'required|string',
         ]);
 
         PushSubscription::updateOrCreate(
             ['endpoint' => $request->endpoint],
             [
                 'user_id' => $request->user()->id,
-                'p256dh'  => $request->p256dh,
-                'auth'    => $request->auth,
+                'p256dh' => $request->p256dh,
+                'auth' => $request->auth,
             ]
         );
 

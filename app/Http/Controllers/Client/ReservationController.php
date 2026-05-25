@@ -2,23 +2,19 @@
 
 namespace App\Http\Controllers\Client;
 
-use App\Http\Controllers\Controller;
 use App\Events\ReservationCancelled as ReservationCancelledEvent;
 use App\Events\ReservationCreated as ReservationCreatedEvent;
+use App\Http\Controllers\Controller;
 use App\Jobs\SendReservationCancelled;
 use App\Jobs\SendReservationConfirmed;
 use App\Models\Product;
 use App\Models\Reservation;
-use App\Models\ReservationItem;
 use App\Models\TimeSlot;
-use App\Models\User;
-use App\Notifications\ReservationCreatedNotification;
 use App\Notifications\AdminReservationCancelledNotification;
-use App\Services\PushNotificationService;
+use App\Notifications\ReservationCreatedNotification;
 use App\Services\NotificationService;
+use App\Services\PushNotificationService;
 use App\Services\TimeSlotService;
-use Illuminate\Http\JsonResponse;
-use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Inertia\Inertia;
@@ -38,18 +34,18 @@ class ReservationController extends Controller
             ->upcoming()
             ->get()
             ->map(fn (Reservation $r) => [
-                'id'               => $r->id,
-                'date'             => $r->date_formatted,
-                'date_raw'         => $r->date->format('Y-m-d'),
-                'start_time'       => $r->start_time_formatted,
-                'end_time'         => $r->end_time_formatted,
-                'duration_hours'   => $r->duration_hours,
-                'status'           => $r->status,
-                'payment_status'   => $r->payment_status,
-                'total_price'      => (float) $r->total_price,
+                'id' => $r->id,
+                'date' => $r->date_formatted,
+                'date_raw' => $r->date->format('Y-m-d'),
+                'start_time' => $r->start_time_formatted,
+                'end_time' => $r->end_time_formatted,
+                'duration_hours' => $r->duration_hours,
+                'status' => $r->status,
+                'payment_status' => $r->payment_status,
+                'total_price' => (float) $r->total_price,
                 'confirmation_code' => $r->confirmation_code,
-                'can_cancel'       => $r->canBeCancelledByClient(),
-                'court_name'       => $r->court?->name,
+                'can_cancel' => $r->canBeCancelledByClient(),
+                'court_name' => $r->court?->name,
             ]);
 
         return Inertia::render('client/Reservations', [
@@ -67,16 +63,16 @@ class ReservationController extends Controller
             ->past()
             ->get()
             ->map(fn (Reservation $r) => [
-                'id'               => $r->id,
-                'date'             => $r->date_formatted,
-                'start_time'       => $r->start_time_formatted,
-                'end_time'         => $r->end_time_formatted,
-                'duration_hours'   => $r->duration_hours,
-                'status'           => $r->status,
-                'payment_status'   => $r->payment_status,
-                'total_price'      => (float) $r->total_price,
+                'id' => $r->id,
+                'date' => $r->date_formatted,
+                'start_time' => $r->start_time_formatted,
+                'end_time' => $r->end_time_formatted,
+                'duration_hours' => $r->duration_hours,
+                'status' => $r->status,
+                'payment_status' => $r->payment_status,
+                'total_price' => (float) $r->total_price,
                 'confirmation_code' => $r->confirmation_code,
-                'court_name'       => $r->court?->name,
+                'court_name' => $r->court?->name,
             ]);
 
         return Inertia::render('client/ReservationHistory', [
@@ -91,29 +87,29 @@ class ReservationController extends Controller
     public function checkout(Request $request): Response
     {
         // Leer del carrito de sesión (flujo normal desde calendario → catálogo → checkout)
-        $cart    = $request->session()->get('cart', ['slot_ids' => [], 'items' => []]);
+        $cart = $request->session()->get('cart', ['slot_ids' => [], 'items' => []]);
         $slotIds = $cart['slot_ids'] ?? [];
 
         if (empty($slotIds)) {
             return Inertia::render('client/Checkout', [
-                'slots'             => [],
-                'items'             => [],
-                'court_name'        => null,
-                'court_price'       => 0,
+                'slots' => [],
+                'items' => [],
+                'court_name' => null,
+                'court_price' => 0,
                 'consumables_price' => 0,
-                'total_price'       => 0,
+                'total_price' => 0,
             ]);
         }
 
-        $slots           = TimeSlot::with('court')->whereIn('id', $slotIds)->orderBy('start_time')->get();
+        $slots = TimeSlot::with('court')->whereIn('id', $slotIds)->orderBy('start_time')->get();
         $totalCourtPrice = $slots->sum(fn ($s) => (float) $s->price);
-        $courtName       = $slots->first()?->court?->name ?? 'Cancha';
+        $courtName = $slots->first()?->court?->name ?? 'Cancha';
 
         // Cargar items del carrito desde la sesión
-        $cart            = $request->session()->get('cart', ['slot_ids' => [], 'items' => []]);
-        $cartItems       = $cart['items'] ?? [];
-        $productIds      = array_keys($cartItems);
-        $products        = $productIds
+        $cart = $request->session()->get('cart', ['slot_ids' => [], 'items' => []]);
+        $cartItems = $cart['items'] ?? [];
+        $productIds = array_keys($cartItems);
+        $products = $productIds
             ? \App\Models\Product::whereIn('id', $productIds)->active()->get()->keyBy('id')
             : collect();
 
@@ -121,32 +117,34 @@ class ReservationController extends Controller
         $consumablesPrice = 0;
         foreach ($cartItems as $productId => $qty) {
             $product = $products->get($productId);
-            if (!$product) continue;
-            $subtotal          = (float) $product->price * $qty;
+            if (! $product) {
+                continue;
+            }
+            $subtotal = (float) $product->price * $qty;
             $consumablesPrice += $subtotal;
             $items[] = [
-                'id'        => $product->id,
-                'name'      => $product->name,
-                'price'     => (float) $product->price,
-                'quantity'  => $qty,
-                'subtotal'  => $subtotal,
+                'id' => $product->id,
+                'name' => $product->name,
+                'price' => (float) $product->price,
+                'quantity' => $qty,
+                'subtotal' => $subtotal,
                 'image_url' => $product->image_url,
             ];
         }
 
         return Inertia::render('client/Checkout', [
             'slots' => $slots->map(fn ($s) => [
-                'id'              => $s->id,
-                'date'            => $s->date->format('d/m/Y'),
+                'id' => $s->id,
+                'date' => $s->date->format('d/m/Y'),
                 'start_formatted' => $s->start_time_formatted,
-                'end_formatted'   => $s->end_time_formatted,
-                'price'           => (float) $s->price,
+                'end_formatted' => $s->end_time_formatted,
+                'price' => (float) $s->price,
             ]),
-            'court_name'        => $courtName,
-            'items'             => $items,
-            'court_price'       => $totalCourtPrice,
+            'court_name' => $courtName,
+            'items' => $items,
+            'court_price' => $totalCourtPrice,
             'consumables_price' => $consumablesPrice,
-            'total_price'       => $totalCourtPrice + $consumablesPrice,
+            'total_price' => $totalCourtPrice + $consumablesPrice,
         ]);
     }
 
@@ -161,7 +159,7 @@ class ReservationController extends Controller
         ]);
 
         // Leer slot_ids del carrito de sesión
-        $cart    = $request->session()->get('cart', ['slot_ids' => [], 'items' => []]);
+        $cart = $request->session()->get('cart', ['slot_ids' => [], 'items' => []]);
         $slotIds = $cart['slot_ids'] ?? [];
 
         if (empty($slotIds)) {
@@ -185,29 +183,31 @@ class ReservationController extends Controller
             ], 422);
         }
 
-        $slots      = TimeSlot::with('court')->whereIn('id', $slotIds)->orderBy('start_time')->get();
+        $slots = TimeSlot::with('court')->whereIn('id', $slotIds)->orderBy('start_time')->get();
         $courtPrice = $slots->sum(fn ($s) => (float) $s->price);
 
         // Leer items del carrito desde sesión
-        $cart         = $request->session()->get('cart', ['slot_ids' => [], 'items' => []]);
-        $cartItems    = $cart['items'] ?? [];
-        $productIds   = array_keys($cartItems);
-        $products     = $productIds
+        $cart = $request->session()->get('cart', ['slot_ids' => [], 'items' => []]);
+        $cartItems = $cart['items'] ?? [];
+        $productIds = array_keys($cartItems);
+        $products = $productIds
             ? Product::whereIn('id', $productIds)->active()->get()->keyBy('id')
             : collect();
 
         $consumablesPrice = 0;
-        $itemsToCreate    = [];
+        $itemsToCreate = [];
         foreach ($cartItems as $productId => $qty) {
             $product = $products->get($productId);
-            if (!$product) continue;
-            $subtotal          = (float) $product->price * $qty;
+            if (! $product) {
+                continue;
+            }
+            $subtotal = (float) $product->price * $qty;
             $consumablesPrice += $subtotal;
-            $itemsToCreate[]   = [
+            $itemsToCreate[] = [
                 'product_id' => $product->id,
-                'quantity'   => $qty,
+                'quantity' => $qty,
                 'unit_price' => (float) $product->price,
-                'subtotal'   => $subtotal,
+                'subtotal' => $subtotal,
             ];
         }
 
@@ -218,18 +218,18 @@ class ReservationController extends Controller
 
             // Crear la reserva
             $reservation = Reservation::create([
-                'user_id'           => $user->id,
-                'court_id'          => $slots->first()->court_id,
-                'date'              => $slots->first()->date->format('Y-m-d'),
-                'start_time'        => $slots->first()->start_time,
-                'end_time'          => $slots->last()->end_time,
-                'duration_hours'    => $slots->count(),
-                'status'            => 'confirmed',
-                'payment_status'    => 'unpaid',
-                'court_price'       => $courtPrice,
+                'user_id' => $user->id,
+                'court_id' => $slots->first()->court_id,
+                'date' => $slots->first()->date->format('Y-m-d'),
+                'start_time' => $slots->first()->start_time,
+                'end_time' => $slots->last()->end_time,
+                'duration_hours' => $slots->count(),
+                'status' => 'confirmed',
+                'payment_status' => 'unpaid',
+                'court_price' => $courtPrice,
                 'consumables_price' => $consumablesPrice,
-                'total_price'       => $totalPrice,
-                'notes'             => $request->notes,
+                'total_price' => $totalPrice,
+                'notes' => $request->notes,
             ]);
 
             // Asociar los slots
@@ -261,15 +261,15 @@ class ReservationController extends Controller
             // Notificación DB + Push a todos los admins
             try {
                 $notif = app(NotificationService::class);
-                $push  = app(PushNotificationService::class);
+                $push = app(PushNotificationService::class);
 
                 $notif->notifyAdmins(new ReservationCreatedNotification($reservation));
 
                 $courtName = $reservation->court?->name ?? 'Cancha';
                 $push->sendToAdmins(
                     title: '📅 Nueva reserva',
-                    body:  "{$reservation->user->name} reservó {$courtName} el {$reservation->date_formatted}",
-                    data:  ['url' => "/admin/reservations/{$reservation->id}"],
+                    body: "{$reservation->user->name} reservó {$courtName} el {$reservation->date_formatted}",
+                    data: ['url' => "/admin/reservations/{$reservation->id}"],
                 );
 
             } catch (\Throwable $e) {
@@ -278,12 +278,13 @@ class ReservationController extends Controller
 
             return redirect()->route('reservations.payment', $reservation)
                 ->with('flash', [
-                    'type'              => 'success',
-                    'message'           => '¡Reserva confirmada! Ahora completa tu pago con Nequi.',
+                    'type' => 'success',
+                    'message' => '¡Reserva confirmada! Ahora completa tu pago con Nequi.',
                     'confirmation_code' => $reservation->confirmation_code,
                 ]);
         } catch (\Throwable $e) {
             DB::rollBack();
+
             return response()->json([
                 'message' => 'Ocurrió un error al procesar tu reserva. Intenta nuevamente.',
             ], 500);
@@ -304,32 +305,32 @@ class ReservationController extends Controller
 
         return Inertia::render('client/ReservationDetail', [
             'reservation' => [
-                'id'                => $reservation->id,
+                'id' => $reservation->id,
                 'confirmation_code' => $reservation->confirmation_code,
-                'date'              => $reservation->date_formatted,
-                'start_time'        => $reservation->start_time_formatted,
-                'end_time'          => $reservation->end_time_formatted,
-                'duration_hours'    => $reservation->duration_hours,
-                'status'            => $reservation->status,
-                'payment_status'    => $reservation->payment_status,
-                'court_price'       => (float) $reservation->court_price,
+                'date' => $reservation->date_formatted,
+                'start_time' => $reservation->start_time_formatted,
+                'end_time' => $reservation->end_time_formatted,
+                'duration_hours' => $reservation->duration_hours,
+                'status' => $reservation->status,
+                'payment_status' => $reservation->payment_status,
+                'court_price' => (float) $reservation->court_price,
                 'consumables_price' => (float) $reservation->consumables_price,
-                'total_price'       => (float) $reservation->total_price,
-                'notes'             => $reservation->notes,
-                'court_name'        => $reservation->court?->name,
-                'court_type'        => $reservation->court?->type,
-                'court_surface'     => $reservation->court?->surface,
-                'can_cancel'        => $reservation->canBeCancelledByClient(),
-                'can_reschedule'    => $reservation->canBeRescheduledByClient(),
-                'court_id'          => $reservation->court_id,
-                'created_at'        => $reservation->created_at->format('d/m/Y'),
-                'items'             => $reservation->items->map(fn ($item) => [
-                    'id'         => $item->id,
-                    'name'       => $item->product?->name ?? 'Producto eliminado',
-                    'quantity'   => $item->quantity,
+                'total_price' => (float) $reservation->total_price,
+                'notes' => $reservation->notes,
+                'court_name' => $reservation->court?->name,
+                'court_type' => $reservation->court?->type,
+                'court_surface' => $reservation->court?->surface,
+                'can_cancel' => $reservation->canBeCancelledByClient(),
+                'can_reschedule' => $reservation->canBeRescheduledByClient(),
+                'court_id' => $reservation->court_id,
+                'created_at' => $reservation->created_at->format('d/m/Y'),
+                'items' => $reservation->items->map(fn ($item) => [
+                    'id' => $item->id,
+                    'name' => $item->product?->name ?? 'Producto eliminado',
+                    'quantity' => $item->quantity,
                     'unit_price' => (float) $item->unit_price,
-                    'subtotal'   => (float) $item->subtotal,
-                    'image_url'  => $item->product?->image_url,
+                    'subtotal' => (float) $item->subtotal,
+                    'image_url' => $item->product?->image_url,
                 ]),
             ],
         ]);
@@ -359,7 +360,7 @@ class ReservationController extends Controller
             // Cancelar primero, luego liberar slots
             // (releaseSlots cuenta reservas activas — si cancelamos primero, el conteo es correcto)
             $reservation->update([
-                'status'              => 'cancelled',
+                'status' => 'cancelled',
                 'cancellation_reason' => 'Cancelado por el cliente',
             ]);
 
@@ -377,13 +378,13 @@ class ReservationController extends Controller
             try {
                 $reservation->load(['user', 'court']);
                 $notif = app(NotificationService::class);
-                $push  = app(PushNotificationService::class);
+                $push = app(PushNotificationService::class);
 
                 $notif->notifyAdmins(new AdminReservationCancelledNotification($reservation));
                 $push->sendToAdmins(
                     title: '❌ Reserva cancelada',
-                    body:  "{$reservation->user->name} canceló la reserva #{$reservation->confirmation_code}.",
-                    data:  ['url' => "/admin/reservations/{$reservation->id}"],
+                    body: "{$reservation->user->name} canceló la reserva #{$reservation->confirmation_code}.",
+                    data: ['url' => "/admin/reservations/{$reservation->id}"],
                 );
             } catch (\Throwable $e) {
                 \Illuminate\Support\Facades\Log::warning("Notif/Push admin error (cancelación cliente reserva #{$reservation->id}): {$e->getMessage()}");
@@ -392,6 +393,7 @@ class ReservationController extends Controller
             return redirect()->route('reservations.index');
         } catch (\Throwable $e) {
             DB::rollBack();
+
             return redirect()->back()->withErrors(['message' => 'Error al cancelar la reserva.']);
         }
     }
@@ -465,9 +467,9 @@ class ReservationController extends Controller
             $reservation->timeSlots()->attach($newSlotIds);
 
             $reservation->update([
-                'date'       => $newStartSlot->date->format('Y-m-d'),
+                'date' => $newStartSlot->date->format('Y-m-d'),
                 'start_time' => $candidateSlots->first()->start_time,
-                'end_time'   => $candidateSlots->last()->end_time,
+                'end_time' => $candidateSlots->last()->end_time,
             ]);
 
             // Liberar slots antiguos y ocupar los nuevos según estado de pago
@@ -481,11 +483,12 @@ class ReservationController extends Controller
             DB::commit();
 
             return redirect()->back()->with('flash', [
-                'type'    => 'success',
+                'type' => 'success',
                 'message' => 'Reserva reprogramada con éxito.',
             ]);
         } catch (\Throwable $e) {
             DB::rollBack();
+
             return redirect()->back()->withErrors([
                 'message' => 'Error al reprogramar la reserva.',
             ]);

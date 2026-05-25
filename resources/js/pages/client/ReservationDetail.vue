@@ -1,9 +1,10 @@
 <script setup lang="ts">
 import { Head, router, usePage } from '@inertiajs/vue3';
-import { ArrowLeft, CalendarClock, CalendarDays, CheckCircle, ChevronLeft, ChevronRight, Clock, Goal, ShoppingBag, X } from 'lucide-vue-next';
-import AppClientLayout from '@/layouts/AppClientLayout.vue';
-import { useToast } from '@/composables/useToast';
 import axios from 'axios';
+import { ArrowLeft, CalendarClock, CalendarDays, CheckCircle, ChevronLeft, ChevronRight, Clock, Goal, ShoppingBag, X } from 'lucide-vue-next';
+import { computed, ref, onMounted, onUnmounted } from 'vue';
+import { useToast } from '@/composables/useToast';
+import AppClientLayout from '@/layouts/AppClientLayout.vue';
 
 const toast = useToast();
 
@@ -78,7 +79,6 @@ const paymentColor: Record<string, string> = {
     rejected:        'bg-red-100 text-red-700 dark:bg-red-900/30 dark:text-red-400',
 };
 
-import { computed, ref, onMounted, onUnmounted } from 'vue';
 
 const cancelling = ref(false);
 

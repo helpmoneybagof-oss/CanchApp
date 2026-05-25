@@ -1,13 +1,13 @@
 <script setup lang="ts">
-import { Head, router } from '@inertiajs/vue3';
-import FullCalendar from '@fullcalendar/vue3';
 import dayGridPlugin from '@fullcalendar/daygrid';
-import timeGridPlugin from '@fullcalendar/timegrid';
 import interactionPlugin from '@fullcalendar/interaction';
-import { ref, computed, watch, onMounted, onUnmounted } from 'vue';
-import { ChevronLeft, ChevronRight, Goal, Lock, Unlock } from 'lucide-vue-next';
-import AppAdminLayout from '@/layouts/AppAdminLayout.vue';
+import timeGridPlugin from '@fullcalendar/timegrid';
+import FullCalendar from '@fullcalendar/vue3';
+import { Head, router } from '@inertiajs/vue3';
 import axios from 'axios';
+import { ChevronLeft, ChevronRight, Goal, Lock, Unlock } from 'lucide-vue-next';
+import { ref, computed, watch, onMounted, onUnmounted } from 'vue';
+import AppAdminLayout from '@/layouts/AppAdminLayout.vue';
 
 interface TimeSlot {
     id: number;

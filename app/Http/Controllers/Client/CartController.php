@@ -30,41 +30,43 @@ class CartController extends Controller
         $items = [];
         foreach ($cart['items'] ?? [] as $productId => $qty) {
             $product = $products->get($productId);
-            if (!$product) continue;
+            if (! $product) {
+                continue;
+            }
             $items[] = [
-                'id'        => $product->id,
-                'name'      => $product->name,
-                'price'     => (float) $product->price,
-                'stock'     => $product->stock,
+                'id' => $product->id,
+                'name' => $product->name,
+                'price' => (float) $product->price,
+                'stock' => $product->stock,
                 'image_url' => $product->image_url,
-                'quantity'  => $qty,
-                'subtotal'  => (float) $product->price * $qty,
+                'quantity' => $qty,
+                'subtotal' => (float) $product->price * $qty,
             ];
         }
 
         // Slots seleccionados
-        $slotIds  = $cart['slot_ids'] ?? [];
-        $slots    = $slotIds
+        $slotIds = $cart['slot_ids'] ?? [];
+        $slots = $slotIds
             ? TimeSlot::whereIn('id', $slotIds)->orderBy('start_time')->get()
                 ->map(fn ($s) => [
-                    'id'              => $s->id,
-                    'date'            => $s->date->format('d/m/Y'),
+                    'id' => $s->id,
+                    'date' => $s->date->format('d/m/Y'),
                     'start_formatted' => $s->start_time_formatted,
-                    'end_formatted'   => $s->end_time_formatted,
-                    'price'           => (float) $s->price,
+                    'end_formatted' => $s->end_time_formatted,
+                    'price' => (float) $s->price,
                 ])
             : [];
 
-        $courtPrice       = collect($slots)->sum('price');
+        $courtPrice = collect($slots)->sum('price');
         $consumablesPrice = collect($items)->sum('subtotal');
-        $totalPrice       = $courtPrice + $consumablesPrice;
+        $totalPrice = $courtPrice + $consumablesPrice;
 
         return Inertia::render('client/Cart', [
-            'items'             => $items,
-            'slots'             => $slots,
-            'court_price'       => $courtPrice,
+            'items' => $items,
+            'slots' => $slots,
+            'court_price' => $courtPrice,
             'consumables_price' => $consumablesPrice,
-            'total_price'       => $totalPrice,
+            'total_price' => $totalPrice,
         ]);
     }
 
@@ -75,7 +77,7 @@ class CartController extends Controller
     {
         $request->validate([
             'product_id' => 'required|exists:products,id',
-            'quantity'   => 'required|integer|min:1',
+            'quantity' => 'required|integer|min:1',
         ]);
 
         $product = Product::active()->findOrFail($request->product_id);
@@ -109,7 +111,7 @@ class CartController extends Controller
     public function setSlots(Request $request): JsonResponse
     {
         $request->validate([
-            'slot_ids'   => 'required|array|min:1',
+            'slot_ids' => 'required|array|min:1',
             'slot_ids.*' => 'integer|exists:time_slots,id',
         ]);
 
@@ -126,6 +128,7 @@ class CartController extends Controller
     public function clear(Request $request): JsonResponse
     {
         $request->session()->forget(self::SESSION_KEY);
+
         return response()->json(['message' => 'Carrito vaciado.']);
     }
 

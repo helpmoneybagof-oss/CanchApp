@@ -22,12 +22,12 @@ class TimeSlotService
         $slots = [];
         for ($hour = $court->start_hour; $hour < $court->end_hour; $hour++) {
             $slots[] = [
-                'court_id'   => $court->id,
-                'date'       => $date,
+                'court_id' => $court->id,
+                'date' => $date,
                 'start_time' => sprintf('%02d:00:00', $hour),
-                'end_time'   => sprintf('%02d:00:00', $hour + 1),
-                'status'     => 'available',
-                'price'      => (float) $court->price_per_hour,
+                'end_time' => sprintf('%02d:00:00', $hour + 1),
+                'status' => 'available',
+                'price' => (float) $court->price_per_hour,
                 'created_at' => now(),
                 'updated_at' => now(),
             ];
@@ -63,18 +63,18 @@ class TimeSlotService
         $preReservedCounts = $this->getPreReservedCounts($slots->pluck('id')->toArray());
 
         return $slots->map(fn (TimeSlot $slot) => [
-                'id'                  => $slot->id,
-                'court_id'            => $slot->court_id,
-                'date'                => $slot->date->format('Y-m-d'),
-                'start_time'          => $slot->start_time,
-                'end_time'            => $slot->end_time,
-                'start_formatted'     => $slot->start_time_formatted,
-                'end_formatted'       => $slot->end_time_formatted,
-                'status'              => $slot->status,
-                'price'               => (float) $slot->price,
-                'block_reason'        => $slot->block_reason,
-                'pre_reserved_count'  => $preReservedCounts[$slot->id] ?? 0,
-            ])
+            'id' => $slot->id,
+            'court_id' => $slot->court_id,
+            'date' => $slot->date->format('Y-m-d'),
+            'start_time' => $slot->start_time,
+            'end_time' => $slot->end_time,
+            'start_formatted' => $slot->start_time_formatted,
+            'end_formatted' => $slot->end_time_formatted,
+            'status' => $slot->status,
+            'price' => (float) $slot->price,
+            'block_reason' => $slot->block_reason,
+            'pre_reserved_count' => $preReservedCounts[$slot->id] ?? 0,
+        ])
             ->toArray();
     }
 
@@ -93,29 +93,29 @@ class TimeSlotService
 
         $slotIds = $slots->pluck('id')->toArray();
         $preReservedCounts = $this->getPreReservedCounts($slotIds);
-        $reservationIds    = $this->getReservationIds($slotIds);
+        $reservationIds = $this->getReservationIds($slotIds);
 
         $nowBogota = \Carbon\Carbon::now('America/Bogota');
 
         return $slots->map(fn (TimeSlot $slot) => [
-                'id'                  => $slot->id,
-                'court_id'            => $slot->court_id,
-                'date'                => $slot->date->format('Y-m-d'),
-                'start_time'          => $slot->start_time,
-                'end_time'            => $slot->end_time,
-                'start_formatted'     => $slot->start_time_formatted,
-                'end_formatted'       => $slot->end_time_formatted,
-                'status'              => $slot->status,
-                'price'               => (float) $slot->price,
-                'block_reason'        => $slot->block_reason,
-                'pre_reserved_count'  => $preReservedCounts[$slot->id] ?? 0,
-                'reservation_id'      => $reservationIds[$slot->id] ?? null,
-                'is_finished'         => $slot->status === 'reserved'
-                                         && \Carbon\Carbon::parse(
-                                                $slot->date->format('Y-m-d') . ' ' . $slot->end_time,
-                                                'America/Bogota'
-                                            )->lt($nowBogota),
-            ])
+            'id' => $slot->id,
+            'court_id' => $slot->court_id,
+            'date' => $slot->date->format('Y-m-d'),
+            'start_time' => $slot->start_time,
+            'end_time' => $slot->end_time,
+            'start_formatted' => $slot->start_time_formatted,
+            'end_formatted' => $slot->end_time_formatted,
+            'status' => $slot->status,
+            'price' => (float) $slot->price,
+            'block_reason' => $slot->block_reason,
+            'pre_reserved_count' => $preReservedCounts[$slot->id] ?? 0,
+            'reservation_id' => $reservationIds[$slot->id] ?? null,
+            'is_finished' => $slot->status === 'reserved'
+                                     && \Carbon\Carbon::parse(
+                                         $slot->date->format('Y-m-d').' '.$slot->end_time,
+                                         'America/Bogota'
+                                     )->lt($nowBogota),
+        ])
             ->toArray();
     }
 
@@ -165,7 +165,7 @@ class TimeSlotService
             \App\Models\Reservation::whereIn('id', $otherReservationIds)
                 ->whereIn('payment_status', ['unpaid', 'pending_payment', 'payment_review', 'rejected'])
                 ->update([
-                    'status'              => 'cancelled',
+                    'status' => 'cancelled',
                     'cancellation_reason' => 'El horario fue reservado por otro usuario que completó el pago primero.',
                 ]);
         }
@@ -212,7 +212,9 @@ class TimeSlotService
      */
     private function broadcastSlotChanges(array $slotIds): void
     {
-        if (empty($slotIds)) return;
+        if (empty($slotIds)) {
+            return;
+        }
 
         $slots = TimeSlot::whereIn('id', $slotIds)
             ->select('court_id', 'date')
@@ -233,7 +235,9 @@ class TimeSlotService
      */
     private function getReservationIds(array $slotIds): array
     {
-        if (empty($slotIds)) return [];
+        if (empty($slotIds)) {
+            return [];
+        }
 
         $rows = \DB::table('reservation_time_slots')
             ->join('reservations', 'reservations.id', '=', 'reservation_time_slots.reservation_id')
@@ -246,10 +250,11 @@ class TimeSlotService
         // Tomar la primera (más prioritaria) por slot
         $result = [];
         foreach ($rows as $row) {
-            if (!isset($result[$row->time_slot_id])) {
+            if (! isset($result[$row->time_slot_id])) {
                 $result[$row->time_slot_id] = $row->reservation_id;
             }
         }
+
         return $result;
     }
 
@@ -258,7 +263,9 @@ class TimeSlotService
      */
     private function getPreReservedCounts(array $slotIds): array
     {
-        if (empty($slotIds)) return [];
+        if (empty($slotIds)) {
+            return [];
+        }
 
         $rows = \DB::table('reservation_time_slots')
             ->join('reservations', 'reservations.id', '=', 'reservation_time_slots.reservation_id')
@@ -278,7 +285,7 @@ class TimeSlotService
     public function blockSlots(array $slotIds, string $reason = ''): void
     {
         TimeSlot::whereIn('id', $slotIds)->update([
-            'status'       => 'blocked',
+            'status' => 'blocked',
             'block_reason' => $reason,
         ]);
 
@@ -295,7 +302,7 @@ class TimeSlotService
         TimeSlot::whereIn('id', $slotIds)
             ->where('status', 'blocked')
             ->update([
-                'status'       => 'available',
+                'status' => 'available',
                 'block_reason' => null,
             ]);
 

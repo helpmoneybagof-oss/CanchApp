@@ -20,7 +20,7 @@ class SlotStatusChanged implements ShouldBroadcast
     public function broadcastOn(): array
     {
         return [
-            new Channel('slots.' . $this->courtId),
+            new Channel('slots.'.$this->courtId),
         ];
     }
 
@@ -33,7 +33,7 @@ class SlotStatusChanged implements ShouldBroadcast
     {
         return [
             'court_id' => $this->courtId,
-            'date'     => $this->date,
+            'date' => $this->date,
         ];
     }
 }

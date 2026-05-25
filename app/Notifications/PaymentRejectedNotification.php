@@ -21,11 +21,11 @@ class PaymentRejectedNotification extends Notification implements ShouldQueue
     public function toArray(object $notifiable): array
     {
         return [
-            'type'  => 'payment_rejected',
+            'type' => 'payment_rejected',
             'title' => '❌ Comprobante rechazado',
-            'body'  => "Tu comprobante de la reserva #{$this->reservation->confirmation_code} fue rechazado. Sube uno nuevo.",
-            'icon'  => '❌',
-            'url'   => "/reservations/{$this->reservation->id}",
+            'body' => "Tu comprobante de la reserva #{$this->reservation->confirmation_code} fue rechazado. Sube uno nuevo.",
+            'icon' => '❌',
+            'url' => "/reservations/{$this->reservation->id}",
         ];
     }
 }

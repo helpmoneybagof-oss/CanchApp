@@ -6,7 +6,6 @@ use App\Mail\NewReservationAdmin;
 use App\Mail\ReservationConfirmed;
 use App\Models\Reservation;
 use App\Models\Setting;
-use App\Models\User;
 use App\Services\PushNotificationService;
 use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldQueue;
@@ -47,8 +46,8 @@ class SendReservationConfirmed implements ShouldQueue
             $courtName = $this->reservation->court?->name ?? 'Cancha';
             $push->sendToAdmins(
                 title: '📅 Nueva reserva',
-                body:  "{$this->reservation->user->name} reservó {$courtName} el {$this->reservation->date_formatted}",
-                data:  ['url' => "/admin/reservations/{$this->reservation->id}"],
+                body: "{$this->reservation->user->name} reservó {$courtName} el {$this->reservation->date_formatted}",
+                data: ['url' => "/admin/reservations/{$this->reservation->id}"],
             );
         } catch (\Throwable $e) {
             Log::warning("Push admin error (reserva #{$this->reservation->id}): {$e->getMessage()}");

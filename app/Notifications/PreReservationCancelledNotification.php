@@ -21,11 +21,11 @@ class PreReservationCancelledNotification extends Notification implements Should
     public function toArray(object $notifiable): array
     {
         return [
-            'type'  => 'pre_reservation_cancelled',
+            'type' => 'pre_reservation_cancelled',
             'title' => '⏳ Pre-reserva liberada',
-            'body'  => 'Otro usuario completó el pago primero y se liberó tu pre-reserva. Puedes intentar reservar otro horario.',
-            'icon'  => '⏳',
-            'url'   => '/reservations',
+            'body' => 'Otro usuario completó el pago primero y se liberó tu pre-reserva. Puedes intentar reservar otro horario.',
+            'icon' => '⏳',
+            'url' => '/reservations',
         ];
     }
 }

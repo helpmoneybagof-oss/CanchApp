@@ -35,22 +35,22 @@ class DashboardController extends Controller
             ->whereIn('status', ['pending', 'confirmed'])
             ->orderBy('start_time')
             ->get()
-            ->map(fn(Reservation $r) => [
-                'id'           => $r->id,
-                'user_name'    => $r->user->name,
-                'start_time'   => $r->start_time_formatted,
-                'end_time'     => $r->end_time_formatted,
-                'status'       => $r->status,
+            ->map(fn (Reservation $r) => [
+                'id' => $r->id,
+                'user_name' => $r->user->name,
+                'start_time' => $r->start_time_formatted,
+                'end_time' => $r->end_time_formatted,
+                'status' => $r->status,
                 'payment_status' => $r->payment_status,
-                'total_price'  => (float) $r->total_price,
+                'total_price' => (float) $r->total_price,
                 'confirmation_code' => $r->confirmation_code,
             ]);
 
         return Inertia::render('admin/Dashboard', [
             'stats' => [
-                'reservations_today'    => $reservationsToday,
-                'reservations_pending'  => $reservationsPending,
-                'income_month'          => (float) $incomeMonth,
+                'reservations_today' => $reservationsToday,
+                'reservations_pending' => $reservationsPending,
+                'income_month' => (float) $incomeMonth,
             ],
             'upcoming_today' => $upcomingToday,
         ]);

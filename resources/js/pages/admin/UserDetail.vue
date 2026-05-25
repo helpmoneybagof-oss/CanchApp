@@ -1,8 +1,8 @@
 <script setup lang="ts">
 import { Head, router } from '@inertiajs/vue3';
 import { ArrowLeft, CalendarDays, Clock, UserCheck, UserX } from 'lucide-vue-next';
-import AppAdminLayout from '@/layouts/AppAdminLayout.vue';
 import { useToast } from '@/composables/useToast';
+import AppAdminLayout from '@/layouts/AppAdminLayout.vue';
 
 const toast = useToast();
 

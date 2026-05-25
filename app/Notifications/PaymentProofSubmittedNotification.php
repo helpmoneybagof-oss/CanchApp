@@ -21,11 +21,11 @@ class PaymentProofSubmittedNotification extends Notification implements ShouldQu
     public function toArray(object $notifiable): array
     {
         return [
-            'type'  => 'payment_proof_submitted',
+            'type' => 'payment_proof_submitted',
             'title' => '💳 Nuevo comprobante',
-            'body'  => "{$this->reservation->user->name} subió el comprobante de la reserva #{$this->reservation->confirmation_code}.",
-            'icon'  => '💳',
-            'url'   => '/admin/payments/pending',
+            'body' => "{$this->reservation->user->name} subió el comprobante de la reserva #{$this->reservation->confirmation_code}.",
+            'icon' => '💳',
+            'url' => '/admin/payments/pending',
         ];
     }
 }

@@ -15,7 +15,7 @@ class DailySummaryAdmin extends Mailable
 
     /**
      * @param  Collection  $reservations  Reservas del día
-     * @param  string      $date          Fecha formateada (ej: "26 de febrero de 2026")
+     * @param  string  $date  Fecha formateada (ej: "26 de febrero de 2026")
      */
     public function __construct(
         public Collection $reservations,
@@ -25,7 +25,7 @@ class DailySummaryAdmin extends Mailable
     public function envelope(): Envelope
     {
         return new Envelope(
-            subject: 'Resumen del día — ' . $this->date,
+            subject: 'Resumen del día — '.$this->date,
         );
     }
 

@@ -46,20 +46,20 @@ class SettingsController extends Controller
     public function update(Request $request): RedirectResponse
     {
         $data = $request->validate([
-            'court_name'              => 'required|string|max:150',
-            'court_address'           => 'nullable|string|max:255',
-            'contact_phone'           => 'nullable|string|max:30',
-            'contact_email'           => 'nullable|email|max:150',
-            'court_price_per_hour'    => 'required|numeric|min:0',
-            'nequi_number'            => 'nullable|string|max:20',
-            'payment_expiry_minutes'  => 'nullable|integer|min:5|max:1440',
-            'mail_host'               => 'nullable|string|max:255',
-            'mail_port'               => 'nullable|string|max:10',
-            'mail_username'           => 'nullable|string|max:255',
-            'mail_password'           => 'nullable|string|max:255',
-            'mail_from_address'       => 'nullable|email|max:150',
-            'mail_from_name'          => 'nullable|string|max:150',
-            'mail_encryption'         => 'nullable|string|in:tls,ssl,',
+            'court_name' => 'required|string|max:150',
+            'court_address' => 'nullable|string|max:255',
+            'contact_phone' => 'nullable|string|max:30',
+            'contact_email' => 'nullable|email|max:150',
+            'court_price_per_hour' => 'required|numeric|min:0',
+            'nequi_number' => 'nullable|string|max:20',
+            'payment_expiry_minutes' => 'nullable|integer|min:5|max:1440',
+            'mail_host' => 'nullable|string|max:255',
+            'mail_port' => 'nullable|string|max:10',
+            'mail_username' => 'nullable|string|max:255',
+            'mail_password' => 'nullable|string|max:255',
+            'mail_from_address' => 'nullable|email|max:150',
+            'mail_from_name' => 'nullable|string|max:150',
+            'mail_encryption' => 'nullable|string|in:tls,ssl,',
         ]);
 
         // No sobreescribir la contraseña si viene vacía
@@ -82,13 +82,13 @@ class SettingsController extends Controller
     {
         $request->validate([
             'current_password' => 'required|string|current_password',
-            'password'         => 'required|string|min:8|confirmed',
+            'password' => 'required|string|min:8|confirmed',
         ], [
             'current_password.current_password' => 'La contraseña actual es incorrecta.',
-            'password.min'                      => 'La nueva contraseña debe tener al menos 8 caracteres.',
-            'password.confirmed'                => 'Las contraseñas no coinciden.',
-            'current_password.required'         => 'La contraseña actual es obligatoria.',
-            'password.required'                 => 'La nueva contraseña es obligatoria.',
+            'password.min' => 'La nueva contraseña debe tener al menos 8 caracteres.',
+            'password.confirmed' => 'Las contraseñas no coinciden.',
+            'current_password.required' => 'La contraseña actual es obligatoria.',
+            'password.required' => 'La nueva contraseña es obligatoria.',
         ]);
 
         $request->user()->update([
@@ -105,12 +105,12 @@ class SettingsController extends Controller
      */
     private function reconfigureMail(): void
     {
-        $host       = Setting::getValue('mail_host');
-        $port       = Setting::getValue('mail_port');
-        $username   = Setting::getValue('mail_username');
-        $password   = Setting::getValue('mail_password');
-        $fromAddr   = Setting::getValue('mail_from_address');
-        $fromName   = Setting::getValue('mail_from_name');
+        $host = Setting::getValue('mail_host');
+        $port = Setting::getValue('mail_port');
+        $username = Setting::getValue('mail_username');
+        $password = Setting::getValue('mail_password');
+        $fromAddr = Setting::getValue('mail_from_address');
+        $fromName = Setting::getValue('mail_from_name');
         $encryption = Setting::getValue('mail_encryption', 'tls');
 
         if ($host && $port && $username) {

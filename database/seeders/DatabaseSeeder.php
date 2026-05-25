@@ -38,14 +38,14 @@ class DatabaseSeeder extends Seeder
 
         // Canchas de ejemplo
         Court::updateOrCreate(['name' => 'Cancha Fútbol 5'], [
-            'type'           => 'Fútbol 5',
+            'type' => 'Fútbol 5',
             'price_per_hour' => 80000,
-            'description'    => 'Cancha de fútbol 5 con superficie sintética de última generación.',
-            'capacity'       => 5,
-            'surface'        => 'Sintética',
-            'start_hour'     => 17,
-            'end_hour'       => 23,
-            'active'         => true,
+            'description' => 'Cancha de fútbol 5 con superficie sintética de última generación.',
+            'capacity' => 5,
+            'surface' => 'Sintética',
+            'start_hour' => 17,
+            'end_hour' => 23,
+            'active' => true,
         ]);
 
         // Configuración inicial del sistema
@@ -56,9 +56,9 @@ class DatabaseSeeder extends Seeder
         Setting::setValue('contact_email', 'admin@cancha.com', 'Correo de contacto');
 
         // Categorías de productos
-        $bebidas   = ProductCategory::updateOrCreate(['name' => 'Bebidas'],   ['description' => 'Agua, jugos, gaseosas y energizantes', 'active' => true]);
-        $snacks    = ProductCategory::updateOrCreate(['name' => 'Snacks'],    ['description' => 'Mecatos y pasabocas', 'active' => true]);
-        $equipos   = ProductCategory::updateOrCreate(['name' => 'Equipos'],   ['description' => 'Petos, balones y accesorios', 'active' => true]);
+        $bebidas = ProductCategory::updateOrCreate(['name' => 'Bebidas'], ['description' => 'Agua, jugos, gaseosas y energizantes', 'active' => true]);
+        $snacks = ProductCategory::updateOrCreate(['name' => 'Snacks'], ['description' => 'Mecatos y pasabocas', 'active' => true]);
+        $equipos = ProductCategory::updateOrCreate(['name' => 'Equipos'], ['description' => 'Petos, balones y accesorios', 'active' => true]);
 
         // Productos de ejemplo
         $productos = [
@@ -77,11 +77,11 @@ class DatabaseSeeder extends Seeder
             Product::updateOrCreate(
                 ['name' => $p['name'], 'product_category_id' => $p['category']->id],
                 [
-                    'description'         => $p['description'],
-                    'price'               => $p['price'],
-                    'stock'               => $p['stock'],
-                    'min_stock'           => $p['min_stock'],
-                    'active'              => true,
+                    'description' => $p['description'],
+                    'price' => $p['price'],
+                    'stock' => $p['stock'],
+                    'min_stock' => $p['min_stock'],
+                    'active' => true,
                 ]
             );
         }

@@ -1,8 +1,8 @@
 <script setup lang="ts">
-import { ref, onMounted, onUnmounted, computed } from 'vue';
-import { Bell, Check, CheckCheck, Trash2, X } from 'lucide-vue-next';
 import { router } from '@inertiajs/vue3';
 import axios from 'axios';
+import { Bell, Check, CheckCheck, Trash2, X } from 'lucide-vue-next';
+import { ref, onMounted, onUnmounted, computed } from 'vue';
 import NotificationPanelContent from '@/components/NotificationPanelContent.vue';
 
 interface Notification {

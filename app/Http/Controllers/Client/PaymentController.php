@@ -9,7 +9,6 @@ use App\Models\Setting;
 use App\Notifications\PaymentProofSubmittedNotification;
 use App\Services\NotificationService;
 use App\Services\PushNotificationService;
-use Illuminate\Http\JsonResponse;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Log;
@@ -33,21 +32,21 @@ class PaymentController extends Controller
             return redirect()->route('reservations.show', $reservation);
         }
 
-        $nequiNumber    = Setting::getValue('nequi_number', '');
-        $expiryMinutes  = (int) Setting::getValue('payment_expiry_minutes', 30);
+        $nequiNumber = Setting::getValue('nequi_number', '');
+        $expiryMinutes = (int) Setting::getValue('payment_expiry_minutes', 30);
 
         return Inertia::render('client/Payment', [
             'reservation' => [
-                'id'                 => $reservation->id,
-                'confirmation_code'  => $reservation->confirmation_code,
-                'total_price'        => (float) $reservation->total_price,
-                'payment_status'     => $reservation->payment_status,
+                'id' => $reservation->id,
+                'confirmation_code' => $reservation->confirmation_code,
+                'total_price' => (float) $reservation->total_price,
+                'payment_status' => $reservation->payment_status,
                 'payment_expires_at' => $reservation->payment_expires_at?->toISOString(),
-                'payment_proof'      => $reservation->payment_proof
+                'payment_proof' => $reservation->payment_proof
                     ? Storage::url($reservation->payment_proof)
                     : null,
             ],
-            'nequi_number'   => $nequiNumber,
+            'nequi_number' => $nequiNumber,
             'expiry_minutes' => $expiryMinutes,
         ]);
     }
@@ -63,13 +62,13 @@ class PaymentController extends Controller
 
         if ($reservation->isPaid() || $reservation->isInPaymentReview()) {
             return redirect()->back()->with('flash', [
-                'type'    => 'error',
+                'type' => 'error',
                 'message' => 'Este pago ya fue enviado y está en revisión.',
             ]);
         }
 
         $request->validate([
-            'proof'     => 'required|file|mimes:jpg,jpeg,png,webp,pdf|max:5120',
+            'proof' => 'required|file|mimes:jpg,jpeg,png,webp,pdf|max:5120',
             'reference' => 'nullable|string|max:100',
         ]);
 
@@ -83,10 +82,10 @@ class PaymentController extends Controller
         $expiryMinutes = (int) Setting::getValue('payment_expiry_minutes', 30);
 
         $reservation->update([
-            'payment_method'     => 'nequi',
-            'payment_reference'  => $request->reference,
-            'payment_proof'      => $path,
-            'payment_status'     => 'payment_review',
+            'payment_method' => 'nequi',
+            'payment_reference' => $request->reference,
+            'payment_proof' => $path,
+            'payment_status' => 'payment_review',
             'payment_expires_at' => now()->addMinutes($expiryMinutes),
         ]);
 
@@ -99,8 +98,8 @@ class PaymentController extends Controller
             $notif->notifyAdmins(new PaymentProofSubmittedNotification($reservation));
             $push->sendToAdmins(
                 title: '💳 Nuevo comprobante de pago',
-                body:  "{$reservation->user->name} subió el comprobante de la reserva #{$reservation->confirmation_code}.",
-                data:  ['url' => '/admin/payments/pending'],
+                body: "{$reservation->user->name} subió el comprobante de la reserva #{$reservation->confirmation_code}.",
+                data: ['url' => '/admin/payments/pending'],
             );
         } catch (\Throwable $e) {
             Log::warning("Notif/Push admin error (comprobante reserva #{$reservation->id}): {$e->getMessage()}");
@@ -108,7 +107,7 @@ class PaymentController extends Controller
 
         return redirect()->route('reservations.show', $reservation)
             ->with('flash', [
-                'type'    => 'success',
+                'type' => 'success',
                 'message' => '¡Comprobante enviado! El administrador revisará tu pago pronto.',
             ]);
     }

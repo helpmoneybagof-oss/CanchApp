@@ -24,12 +24,13 @@ class PushNotificationService
                 return $path;
             }
         }
+
         return true; // Sistema (funciona en Linux/Mac y en Windows con php.ini configurado)
     }
 
     public function __construct()
     {
-        $publicKey  = config('app.vapid_public_key', '');
+        $publicKey = config('app.vapid_public_key', '');
         $privateKey = config('app.vapid_private_key', '');
 
         // Si las claves VAPID no están configuradas o son inválidas, no inicializar WebPush
@@ -42,8 +43,8 @@ class PushNotificationService
             $this->webPush = new WebPush(
                 auth: [
                     'VAPID' => [
-                        'subject'    => config('app.url'),
-                        'publicKey'  => $publicKey,
+                        'subject' => config('app.url'),
+                        'publicKey' => $publicKey,
                         'privateKey' => $privateKey,
                     ],
                 ],
@@ -55,7 +56,7 @@ class PushNotificationService
                 ],
             );
         } catch (\Throwable $e) {
-            \Illuminate\Support\Facades\Log::warning('PushNotificationService: No se pudo inicializar WebPush: ' . $e->getMessage());
+            \Illuminate\Support\Facades\Log::warning('PushNotificationService: No se pudo inicializar WebPush: '.$e->getMessage());
             $this->webPush = null;
         }
     }
@@ -65,7 +66,9 @@ class PushNotificationService
      */
     public function sendToUser(int $userId, string $title, string $body, array $data = []): void
     {
-        if (!$this->webPush) return;
+        if (! $this->webPush) {
+            return;
+        }
 
         $subscriptions = PushSubscription::where('user_id', $userId)->get();
 
@@ -75,20 +78,20 @@ class PushNotificationService
 
         $payload = json_encode([
             'title' => $title,
-            'body'  => $body,
-            'icon'  => '/icons/pwa-192.png',
+            'body' => $body,
+            'icon' => '/icons/pwa-192.png',
             'badge' => '/icons/pwa-96.png',
-            'data'  => $data,
+            'data' => $data,
         ]);
 
         foreach ($subscriptions as $sub) {
             try {
                 $this->webPush->queueNotification(
                     Subscription::create([
-                        'endpoint'        => $sub->endpoint,
+                        'endpoint' => $sub->endpoint,
                         'keys' => [
                             'p256dh' => $sub->p256dh,
-                            'auth'   => $sub->auth,
+                            'auth' => $sub->auth,
                         ],
                     ]),
                     $payload

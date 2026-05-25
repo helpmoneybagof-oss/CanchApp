@@ -12,7 +12,7 @@ class NotificationController extends Controller
     /** GET /api/notifications — Lista de notificaciones del usuario autenticado */
     public function index(Request $request): JsonResponse
     {
-        $user          = Auth::user();
+        $user = Auth::user();
         $notifications = $user->notifications()
             ->latest()
             ->limit(50)
@@ -21,7 +21,7 @@ class NotificationController extends Controller
 
         return response()->json([
             'notifications' => $notifications,
-            'unreadCount'   => $user->unreadNotifications()->count(),
+            'unreadCount' => $user->unreadNotifications()->count(),
         ]);
     }
 
@@ -57,13 +57,13 @@ class NotificationController extends Controller
     private function format($n): array
     {
         return [
-            'id'        => $n->id,
-            'type'      => $n->data['type']  ?? 'info',
-            'title'     => $n->data['title'] ?? '',
-            'body'      => $n->data['body']  ?? '',
-            'icon'      => $n->data['icon']  ?? '🔔',
-            'url'       => $n->data['url']   ?? null,
-            'readAt'    => $n->read_at?->toISOString(),
+            'id' => $n->id,
+            'type' => $n->data['type'] ?? 'info',
+            'title' => $n->data['title'] ?? '',
+            'body' => $n->data['body'] ?? '',
+            'icon' => $n->data['icon'] ?? '🔔',
+            'url' => $n->data['url'] ?? null,
+            'readAt' => $n->read_at?->toISOString(),
             'createdAt' => $n->created_at->toISOString(),
         ];
     }

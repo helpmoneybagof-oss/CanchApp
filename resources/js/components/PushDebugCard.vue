@@ -1,6 +1,6 @@
 <script setup lang="ts">
-import { computed, onMounted, ref } from 'vue';
 import axios from 'axios';
+import { computed, onMounted, ref } from 'vue';
 import { subscribeToPush, requestPushPermission, usePush } from '@/composables/usePush';
 
 const { isSupported, permission } = usePush();

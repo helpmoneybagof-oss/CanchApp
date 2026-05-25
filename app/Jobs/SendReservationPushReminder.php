@@ -36,9 +36,9 @@ class SendReservationPushReminder implements ShouldQueue
             $notif->notifyUser($this->reservation->user, new ReservationReminderNotification($this->reservation, $this->label));
             $push->sendToUser(
                 userId: $this->reservation->user_id,
-                title:  '⏰ Recordatorio de reserva',
-                body:   "Tu partido empieza en {$this->label}.",
-                data:   ['url' => "/reservations/{$this->reservation->id}"],
+                title: '⏰ Recordatorio de reserva',
+                body: "Tu partido empieza en {$this->label}.",
+                data: ['url' => "/reservations/{$this->reservation->id}"],
             );
         } catch (\Throwable $e) {
             Log::warning("Push reminder error (reserva #{$this->reservation->id}): {$e->getMessage()}");

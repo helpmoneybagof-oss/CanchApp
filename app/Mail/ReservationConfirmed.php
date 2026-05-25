@@ -20,7 +20,7 @@ class ReservationConfirmed extends Mailable
     public function envelope(): Envelope
     {
         return new Envelope(
-            subject: '¡Reserva confirmada! #' . $this->reservation->confirmation_code,
+            subject: '¡Reserva confirmada! #'.$this->reservation->confirmation_code,
         );
     }
 
@@ -42,7 +42,7 @@ class ReservationConfirmed extends Mailable
         return [
             Attachment::fromData(
                 fn () => $pdf->output(),
-                'comprobante-reserva-' . $reservation->confirmation_code . '.pdf'
+                'comprobante-reserva-'.$reservation->confirmation_code.'.pdf'
             )->withMime('application/pdf'),
         ];
     }

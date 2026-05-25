@@ -18,7 +18,7 @@ class CancellationAdmin extends Mailable
     public function envelope(): Envelope
     {
         return new Envelope(
-            subject: 'Reserva cancelada #' . $this->reservation->confirmation_code,
+            subject: 'Reserva cancelada #'.$this->reservation->confirmation_code,
         );
     }
 

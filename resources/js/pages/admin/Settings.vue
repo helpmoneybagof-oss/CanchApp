@@ -2,9 +2,9 @@
 import { Head, router, usePage } from '@inertiajs/vue3';
 import { Save, Settings as SettingsIcon, KeyRound } from 'lucide-vue-next';
 import { ref, onMounted } from 'vue';
-import AppAdminLayout from '@/layouts/AppAdminLayout.vue';
 import PushDebugCard from '@/components/PushDebugCard.vue';
 import { useToast } from '@/composables/useToast';
+import AppAdminLayout from '@/layouts/AppAdminLayout.vue';
 
 const toast = useToast();
 const page = usePage();

@@ -1,8 +1,8 @@
 <script setup lang="ts">
 import { Head } from '@inertiajs/vue3';
 import { BarChart3, CalendarCheck, Clock, DollarSign, Goal } from 'lucide-vue-next';
-import AppAdminLayout from '@/layouts/AppAdminLayout.vue';
 import { useRealtimeAdmin } from '@/composables/useRealtime';
+import AppAdminLayout from '@/layouts/AppAdminLayout.vue';
 
 defineProps<{
     stats: {

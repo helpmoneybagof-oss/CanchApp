@@ -15,14 +15,14 @@ class ReportController extends Controller
     public function index(Request $request): Response
     {
         $from = $request->input('from', Carbon::now()->startOfMonth()->toDateString());
-        $to   = $request->input('to',   Carbon::now()->toDateString());
+        $to = $request->input('to', Carbon::now()->toDateString());
 
         // Validar rango
         $fromDate = Carbon::parse($from);
-        $toDate   = Carbon::parse($to);
+        $toDate = Carbon::parse($to);
         if ($fromDate->gt($toDate)) {
             $fromDate = $toDate->copy()->startOfMonth();
-            $from     = $fromDate->toDateString();
+            $from = $fromDate->toDateString();
         }
 
         // ── Resumen general ──
@@ -51,26 +51,26 @@ class ReportController extends Controller
         $period = CarbonPeriod::create($from, $to);
         $dailyIncome = [];
         foreach ($period as $date) {
-            $d       = $date->toDateString();
-            $income  = Reservation::forDate($d)
+            $d = $date->toDateString();
+            $income = Reservation::forDate($d)
                 ->whereIn('status', ['confirmed', 'completed'])
                 ->sum('total_price');
-            $count   = Reservation::forDate($d)
+            $count = Reservation::forDate($d)
                 ->whereIn('status', ['confirmed', 'completed'])
                 ->count();
             $dailyIncome[] = [
-                'date'   => $date->format('d/m'),
+                'date' => $date->format('d/m'),
                 'income' => (float) $income,
-                'count'  => $count,
+                'count' => $count,
             ];
         }
 
         // ── Reservas por día de la semana ──
         $byWeekday = [];
-        $days      = ['Domingo', 'Lunes', 'Martes', 'Miércoles', 'Jueves', 'Viernes', 'Sábado'];
+        $days = ['Domingo', 'Lunes', 'Martes', 'Miércoles', 'Jueves', 'Viernes', 'Sábado'];
         foreach ($days as $i => $day) {
             $byWeekday[] = [
-                'day'   => $day,
+                'day' => $day,
                 'count' => Reservation::whereBetween('date', [$from, $to])
                     ->whereIn('status', ['confirmed', 'completed'])
                     ->whereRaw('DAYOFWEEK(date) = ?', [$i + 1])
@@ -90,10 +90,10 @@ class ReportController extends Controller
             ->limit(5)
             ->get()
             ->map(fn (Reservation $r) => [
-                'name'               => $r->user?->name  ?? 'Desconocido',
-                'email'              => $r->user?->email ?? '',
+                'name' => $r->user?->name ?? 'Desconocido',
+                'email' => $r->user?->email ?? '',
                 'total_reservations' => (int) $r->total_reservations,
-                'total_spent'        => (float) $r->total_spent,
+                'total_spent' => (float) $r->total_spent,
             ]);
 
         // ── Distribución por hora del día (horas pico) ──
@@ -107,7 +107,7 @@ class ReportController extends Controller
         $hourlyDistribution = [];
         for ($h = 0; $h < 24; $h++) {
             $hourlyDistribution[] = [
-                'hour'  => $h,
+                'hour' => $h,
                 'label' => sprintf('%d%s', $h % 12 === 0 ? 12 : $h % 12, $h < 12 ? 'a' : 'p'),
                 'count' => (int) ($hourlyRows[$h] ?? 0),
             ];
@@ -130,17 +130,17 @@ class ReportController extends Controller
         ];
 
         // ── Comparativa con período anterior (mismo tamaño) ──
-        $rangeDays      = $fromDate->diffInDays($toDate) + 1;
-        $prevToDate     = $fromDate->copy()->subDay();
-        $prevFromDate   = $prevToDate->copy()->subDays($rangeDays - 1);
-        $prevIncome     = (float) Reservation::whereBetween('date', [$prevFromDate->toDateString(), $prevToDate->toDateString()])
+        $rangeDays = $fromDate->diffInDays($toDate) + 1;
+        $prevToDate = $fromDate->copy()->subDay();
+        $prevFromDate = $prevToDate->copy()->subDays($rangeDays - 1);
+        $prevIncome = (float) Reservation::whereBetween('date', [$prevFromDate->toDateString(), $prevToDate->toDateString()])
             ->whereIn('status', ['confirmed', 'completed'])
             ->sum('total_price');
         $prevReservations = (int) Reservation::whereBetween('date', [$prevFromDate->toDateString(), $prevToDate->toDateString()])
             ->whereIn('status', ['confirmed', 'completed'])
             ->count();
 
-        $incomeChange       = $prevIncome > 0 ? round((($totalIncome - $prevIncome) / $prevIncome) * 100, 1) : null;
+        $incomeChange = $prevIncome > 0 ? round((($totalIncome - $prevIncome) / $prevIncome) * 100, 1) : null;
         $reservationsChange = $prevReservations > 0 ? round((($totalReservations - $prevReservations) / $prevReservations) * 100, 1) : null;
 
         // ── Últimas reservas del período ──
@@ -152,37 +152,37 @@ class ReportController extends Controller
             ->limit(10)
             ->get()
             ->map(fn (Reservation $r) => [
-                'id'                => $r->id,
-                'user_name'         => $r->user->name,
-                'date'              => $r->date_formatted,
-                'start_time'        => $r->start_time_formatted,
-                'end_time'          => $r->end_time_formatted,
-                'status'            => $r->status,
-                'payment_status'    => $r->payment_status,
-                'total_price'       => (float) $r->total_price,
+                'id' => $r->id,
+                'user_name' => $r->user->name,
+                'date' => $r->date_formatted,
+                'start_time' => $r->start_time_formatted,
+                'end_time' => $r->end_time_formatted,
+                'status' => $r->status,
+                'payment_status' => $r->payment_status,
+                'total_price' => (float) $r->total_price,
                 'confirmation_code' => $r->confirmation_code,
             ]);
 
         return Inertia::render('admin/Reports', [
             'filters' => ['from' => $from, 'to' => $to],
             'summary' => [
-                'total_reservations'    => $totalReservations,
-                'total_income'          => (float) $totalIncome,
-                'court_income'          => (float) $courtIncome,
-                'pending_payments'      => $pendingPayments,
+                'total_reservations' => $totalReservations,
+                'total_income' => (float) $totalIncome,
+                'court_income' => (float) $courtIncome,
+                'pending_payments' => $pendingPayments,
                 'cancelled_reservations' => $cancelledReservations,
             ],
             'comparison' => [
-                'prev_income'           => $prevIncome,
-                'prev_reservations'     => $prevReservations,
-                'income_change'         => $incomeChange,
-                'reservations_change'   => $reservationsChange,
+                'prev_income' => $prevIncome,
+                'prev_reservations' => $prevReservations,
+                'income_change' => $incomeChange,
+                'reservations_change' => $reservationsChange,
             ],
-            'daily_income'        => $dailyIncome,
-            'by_weekday'          => $byWeekday,
+            'daily_income' => $dailyIncome,
+            'by_weekday' => $byWeekday,
             'hourly_distribution' => $hourlyDistribution,
-            'payment_breakdown'   => $paymentBreakdown,
-            'top_clients'         => $topClients,
+            'payment_breakdown' => $paymentBreakdown,
+            'top_clients' => $topClients,
             'recent_reservations' => $recentReservations,
         ]);
     }

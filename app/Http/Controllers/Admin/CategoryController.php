@@ -17,10 +17,10 @@ class CategoryController extends Controller
             ->orderBy('name')
             ->get()
             ->map(fn (ProductCategory $c) => [
-                'id'             => $c->id,
-                'name'           => $c->name,
-                'description'    => $c->description,
-                'active'         => $c->active,
+                'id' => $c->id,
+                'name' => $c->name,
+                'description' => $c->description,
+                'active' => $c->active,
                 'products_count' => $c->products_count,
             ]);
 
@@ -32,9 +32,9 @@ class CategoryController extends Controller
     public function store(Request $request): RedirectResponse
     {
         $request->validate([
-            'name'        => 'required|string|max:100|unique:product_categories,name',
+            'name' => 'required|string|max:100|unique:product_categories,name',
             'description' => 'nullable|string|max:300',
-            'active'      => 'boolean',
+            'active' => 'boolean',
         ]);
 
         ProductCategory::create($request->only(['name', 'description', 'active']));
@@ -46,9 +46,9 @@ class CategoryController extends Controller
     public function update(Request $request, ProductCategory $category): RedirectResponse
     {
         $request->validate([
-            'name'        => 'required|string|max:100|unique:product_categories,name,' . $category->id,
+            'name' => 'required|string|max:100|unique:product_categories,name,'.$category->id,
             'description' => 'nullable|string|max:300',
-            'active'      => 'boolean',
+            'active' => 'boolean',
         ]);
 
         $category->update($request->only(['name', 'description', 'active']));

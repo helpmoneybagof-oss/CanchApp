@@ -14,7 +14,6 @@ class ReservationReminder extends Mailable
     use Queueable, SerializesModels;
 
     /**
-     * @param  Reservation  $reservation
      * @param  string  $hoursLabel  Ej: "24 horas" o "2 horas"
      */
     public function __construct(
@@ -25,7 +24,7 @@ class ReservationReminder extends Mailable
     public function envelope(): Envelope
     {
         return new Envelope(
-            subject: 'Recordatorio: tu reserva es en ' . $this->hoursLabel . ' (#' . $this->reservation->confirmation_code . ')',
+            subject: 'Recordatorio: tu reserva es en '.$this->hoursLabel.' (#'.$this->reservation->confirmation_code.')',
         );
     }
 

@@ -2,8 +2,8 @@
 import { Head, router } from '@inertiajs/vue3';
 import { Edit2, Plus, ShieldCheck, Trash2, X, Goal, ImageIcon, Upload } from 'lucide-vue-next';
 import { computed, ref } from 'vue';
-import AppAdminLayout from '@/layouts/AppAdminLayout.vue';
 import { useToast } from '@/composables/useToast';
+import AppAdminLayout from '@/layouts/AppAdminLayout.vue';
 
 const toast = useToast();
 

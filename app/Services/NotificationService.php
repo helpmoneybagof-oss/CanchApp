@@ -15,17 +15,17 @@ class NotificationService
     {
         // Guardar directamente en BD sin queue para poder hacer broadcast inmediato
         $data = $notification->toArray($user);
-        $id   = (string) \Illuminate\Support\Str::uuid();
+        $id = (string) \Illuminate\Support\Str::uuid();
 
         \DB::table('notifications')->insert([
-            'id'              => $id,
-            'type'            => get_class($notification),
+            'id' => $id,
+            'type' => get_class($notification),
             'notifiable_type' => get_class($user),
-            'notifiable_id'   => $user->id,
-            'data'            => json_encode($data),
-            'read_at'         => null,
-            'created_at'      => now(),
-            'updated_at'      => now(),
+            'notifiable_id' => $user->id,
+            'data' => json_encode($data),
+            'read_at' => null,
+            'created_at' => now(),
+            'updated_at' => now(),
         ]);
 
         $unreadCount = \DB::table('notifications')
@@ -35,13 +35,13 @@ class NotificationService
             ->count();
 
         broadcast(new NotificationCreated(
-            userId:      $user->id,
-            id:          $id,
-            type:        $data['type']  ?? 'info',
-            title:       $data['title'] ?? '',
-            body:        $data['body']  ?? '',
-            icon:        $data['icon']  ?? '🔔',
-            url:         $data['url']   ?? null,
+            userId: $user->id,
+            id: $id,
+            type: $data['type'] ?? 'info',
+            title: $data['title'] ?? '',
+            body: $data['body'] ?? '',
+            icon: $data['icon'] ?? '🔔',
+            url: $data['url'] ?? null,
             unreadCount: $unreadCount,
         ));
     }

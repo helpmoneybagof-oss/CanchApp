@@ -23,7 +23,7 @@ class PushDebugController extends Controller
             'ok' => true,
             'server' => [
                 'app_url' => config('app.url'),
-                'vapid_public_key_configured'  => (bool) config('app.vapid_public_key'),
+                'vapid_public_key_configured' => (bool) config('app.vapid_public_key'),
                 'vapid_private_key_configured' => (bool) config('app.vapid_private_key'),
             ],
             'subscriptions' => [

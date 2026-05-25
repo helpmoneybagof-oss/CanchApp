@@ -50,6 +50,7 @@ class FortifyServiceProvider extends ServiceProvider
             if ($user && $user->isAdmin()) {
                 return route('admin.dashboard');
             }
+
             return route('dashboard');
         });
 

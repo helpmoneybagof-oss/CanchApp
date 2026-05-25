@@ -26,11 +26,11 @@ class ReservationReminderNotification extends Notification implements ShouldQueu
         $courtName = $this->reservation->court?->name ?? 'Cancha';
 
         return [
-            'type'  => 'reservation_reminder',
+            'type' => 'reservation_reminder',
             'title' => '⏰ Recordatorio de reserva',
-            'body'  => "Tu partido en {$courtName} empieza en {$this->label}.",
-            'icon'  => '⏰',
-            'url'   => "/reservations/{$this->reservation->id}",
+            'body' => "Tu partido en {$courtName} empieza en {$this->label}.",
+            'icon' => '⏰',
+            'url' => "/reservations/{$this->reservation->id}",
         ];
     }
 }

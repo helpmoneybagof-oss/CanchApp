@@ -38,23 +38,23 @@ class HandleInertiaRequests extends Middleware
     {
         return [
             ...parent::share($request),
-            'name'     => config('app.name'),
+            'name' => config('app.name'),
             'app_name' => Setting::getValue('court_name', config('app.name')),
             'app_address' => Setting::getValue('court_address', ''),
-            'app_phone'   => Setting::getValue('contact_phone', ''),
+            'app_phone' => Setting::getValue('contact_phone', ''),
             'auth' => [
                 'user' => $request->user(),
             ],
             'sidebarOpen' => ! $request->hasCookie('sidebar_state') || $request->cookie('sidebar_state') === 'true',
             'flash' => [
-                'type'              => $request->session()->get('flash.type'),
-                'message'           => $request->session()->get('flash.message'),
+                'type' => $request->session()->get('flash.type'),
+                'message' => $request->session()->get('flash.message'),
                 'confirmation_code' => $request->session()->get('flash.confirmation_code'),
             ],
             'reverb' => [
-                'key'    => config('broadcasting.connections.reverb.key'),
-                'host'   => config('broadcasting.connections.reverb.options.host'),
-                'port'   => config('broadcasting.connections.reverb.options.port'),
+                'key' => config('broadcasting.connections.reverb.key'),
+                'host' => config('broadcasting.connections.reverb.options.host'),
+                'port' => config('broadcasting.connections.reverb.options.port'),
                 'scheme' => config('broadcasting.connections.reverb.options.scheme'),
             ],
         ];

@@ -1,15 +1,15 @@
 <script setup lang="ts">
-import { Head, router, usePage } from '@inertiajs/vue3';
-import FullCalendar from '@fullcalendar/vue3';
 import dayGridPlugin from '@fullcalendar/daygrid';
-import timeGridPlugin from '@fullcalendar/timegrid';
 import interactionPlugin from '@fullcalendar/interaction';
-import { ref, computed, watch, onMounted, onUnmounted } from 'vue';
-import { CalendarDays, ChevronLeft, ChevronRight, Clock, Goal, ImageIcon, X } from 'lucide-vue-next';
-import AppClientLayout from '@/layouts/AppClientLayout.vue';
-import { useToast } from '@/composables/useToast';
-import { useRealtimeSlots } from '@/composables/useRealtime';
+import timeGridPlugin from '@fullcalendar/timegrid';
+import FullCalendar from '@fullcalendar/vue3';
+import { Head, router, usePage } from '@inertiajs/vue3';
 import axios from 'axios';
+import { CalendarDays, ChevronLeft, ChevronRight, Clock, Goal, ImageIcon, X } from 'lucide-vue-next';
+import { ref, computed, watch, onMounted, onUnmounted } from 'vue';
+import { useRealtimeSlots } from '@/composables/useRealtime';
+import { useToast } from '@/composables/useToast';
+import AppClientLayout from '@/layouts/AppClientLayout.vue';
 
 const toast = useToast();
 

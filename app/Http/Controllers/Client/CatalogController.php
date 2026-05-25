@@ -21,33 +21,33 @@ class CatalogController extends Controller
 
         if ($request->filled('search')) {
             $query->where(function ($q) use ($request) {
-                $q->where('name', 'like', '%' . $request->search . '%')
-                  ->orWhere('description', 'like', '%' . $request->search . '%');
+                $q->where('name', 'like', '%'.$request->search.'%')
+                    ->orWhere('description', 'like', '%'.$request->search.'%');
             });
         }
 
         $products = $query->get()->map(fn (Product $p) => [
-            'id'          => $p->id,
-            'name'        => $p->name,
+            'id' => $p->id,
+            'name' => $p->name,
             'description' => $p->description,
-            'price'       => (float) $p->price,
-            'stock'       => $p->stock,
-            'image_url'   => $p->image_url,
-            'category'    => ['id' => $p->category->id, 'name' => $p->category->name],
+            'price' => (float) $p->price,
+            'stock' => $p->stock,
+            'image_url' => $p->image_url,
+            'category' => ['id' => $p->category->id, 'name' => $p->category->name],
         ]);
 
         $categories = ProductCategory::active()->orderBy('name')->get(['id', 'name']);
 
         // Detectar si viene del calendario
-        $cart            = $request->session()->get('cart', ['slot_ids' => [], 'items' => []]);
-        $fromCalendar    = $request->boolean('from_calendar');
-        $cartSlotsCount  = count($cart['slot_ids'] ?? []);
+        $cart = $request->session()->get('cart', ['slot_ids' => [], 'items' => []]);
+        $fromCalendar = $request->boolean('from_calendar');
+        $cartSlotsCount = count($cart['slot_ids'] ?? []);
 
         return Inertia::render('client/Catalog', [
-            'products'         => $products,
-            'categories'       => $categories,
-            'filters'          => $request->only(['search', 'category_id']),
-            'from_calendar'    => $fromCalendar,
+            'products' => $products,
+            'categories' => $categories,
+            'filters' => $request->only(['search', 'category_id']),
+            'from_calendar' => $fromCalendar,
             'cart_slots_count' => $cartSlotsCount,
         ]);
     }

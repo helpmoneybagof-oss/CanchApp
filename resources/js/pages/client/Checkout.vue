@@ -2,8 +2,8 @@
 import { Head, router, usePage } from '@inertiajs/vue3';
 import { CalendarDays, CheckCircle, Clock, CreditCard, ShoppingBag } from 'lucide-vue-next';
 import { onMounted, ref } from 'vue';
-import AppClientLayout from '@/layouts/AppClientLayout.vue';
 import { useToast } from '@/composables/useToast';
+import AppClientLayout from '@/layouts/AppClientLayout.vue';
 
 interface Slot {
     id: number;

@@ -2,8 +2,8 @@
 import { Head, router } from '@inertiajs/vue3';
 import { ArrowLeft, CalendarDays, Check, CheckCircle, Clock, Goal, X } from 'lucide-vue-next';
 import { ref } from 'vue';
-import AppAdminLayout from '@/layouts/AppAdminLayout.vue';
 import { useToast } from '@/composables/useToast';
+import AppAdminLayout from '@/layouts/AppAdminLayout.vue';
 
 const toast = useToast();
 

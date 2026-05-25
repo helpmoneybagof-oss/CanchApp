@@ -18,7 +18,7 @@ class PaymentApproved implements ShouldBroadcast
     public function broadcastOn(): array
     {
         return [
-            new PrivateChannel('user.' . $this->reservation->user_id),
+            new PrivateChannel('user.'.$this->reservation->user_id),
             new PrivateChannel('admin'),
         ];
     }
@@ -31,11 +31,11 @@ class PaymentApproved implements ShouldBroadcast
     public function broadcastWith(): array
     {
         return [
-            'id'               => $this->reservation->id,
-            'confirmation_code'=> $this->reservation->confirmation_code,
-            'user_id'          => $this->reservation->user_id,
-            'payment_status'   => $this->reservation->payment_status,
-            'status'           => $this->reservation->status,
+            'id' => $this->reservation->id,
+            'confirmation_code' => $this->reservation->confirmation_code,
+            'user_id' => $this->reservation->user_id,
+            'payment_status' => $this->reservation->payment_status,
+            'status' => $this->reservation->status,
         ];
     }
 }

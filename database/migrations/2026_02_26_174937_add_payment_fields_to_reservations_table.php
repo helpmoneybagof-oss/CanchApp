@@ -20,10 +20,11 @@ return new class extends Migration
             $table->timestamp('payment_expires_at')->nullable()->after('payment_proof');
         });
 
-        // Ampliar el enum payment_status para estados intermedios de pago
-        // SQLite no soporta ALTER COLUMN para enums, usamos string
-        // En MySQL: modificar la columna enum directamente
-        DB::statement("ALTER TABLE reservations MODIFY COLUMN payment_status ENUM('unpaid','pending_payment','payment_review','paid','rejected') NOT NULL DEFAULT 'unpaid'");
+        // Ampliar el enum payment_status para estados intermedios de pago.
+        // SQLite no soporta ALTER COLUMN para enums — en tests/CI lo saltamos.
+        if (DB::getDriverName() === 'mysql') {
+            DB::statement("ALTER TABLE reservations MODIFY COLUMN payment_status ENUM('unpaid','pending_payment','payment_review','paid','rejected') NOT NULL DEFAULT 'unpaid'");
+        }
     }
 
     public function down(): void
@@ -32,6 +33,8 @@ return new class extends Migration
             $table->dropColumn(['payment_method', 'payment_reference', 'payment_proof', 'payment_expires_at']);
         });
 
-        DB::statement("ALTER TABLE reservations MODIFY COLUMN payment_status ENUM('unpaid','paid') NOT NULL DEFAULT 'unpaid'");
+        if (DB::getDriverName() === 'mysql') {
+            DB::statement("ALTER TABLE reservations MODIFY COLUMN payment_status ENUM('unpaid','paid') NOT NULL DEFAULT 'unpaid'");
+        }
     }
 };

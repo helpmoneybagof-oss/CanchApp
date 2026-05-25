@@ -22,7 +22,7 @@ class ProductController extends Controller
         }
 
         if ($request->filled('search')) {
-            $query->where('name', 'like', '%' . $request->search . '%');
+            $query->where('name', 'like', '%'.$request->search.'%');
         }
 
         if ($request->filled('active')) {
@@ -30,24 +30,24 @@ class ProductController extends Controller
         }
 
         $products = $query->get()->map(fn (Product $p) => [
-            'id'          => $p->id,
-            'name'        => $p->name,
+            'id' => $p->id,
+            'name' => $p->name,
             'description' => $p->description,
-            'price'       => (float) $p->price,
-            'stock'       => $p->stock,
-            'min_stock'   => $p->min_stock,
-            'active'      => $p->active,
-            'low_stock'   => $p->isLowStock(),
-            'image_url'   => $p->image_url,
-            'category'    => ['id' => $p->category->id, 'name' => $p->category->name],
+            'price' => (float) $p->price,
+            'stock' => $p->stock,
+            'min_stock' => $p->min_stock,
+            'active' => $p->active,
+            'low_stock' => $p->isLowStock(),
+            'image_url' => $p->image_url,
+            'category' => ['id' => $p->category->id, 'name' => $p->category->name],
         ]);
 
         $categories = ProductCategory::active()->orderBy('name')->get(['id', 'name']);
 
         return Inertia::render('admin/Products', [
-            'products'   => $products,
+            'products' => $products,
             'categories' => $categories,
-            'filters'    => $request->only(['search', 'category_id', 'active']),
+            'filters' => $request->only(['search', 'category_id', 'active']),
         ]);
     }
 
@@ -55,13 +55,13 @@ class ProductController extends Controller
     {
         $data = $request->validate([
             'product_category_id' => 'required|exists:product_categories,id',
-            'name'        => 'required|string|max:150',
+            'name' => 'required|string|max:150',
             'description' => 'nullable|string|max:500',
-            'price'       => 'required|numeric|min:0',
-            'stock'       => 'required|integer|min:0',
-            'min_stock'   => 'required|integer|min:0',
-            'active'      => 'boolean',
-            'image'       => 'nullable|image|max:2048',
+            'price' => 'required|numeric|min:0',
+            'stock' => 'required|integer|min:0',
+            'min_stock' => 'required|integer|min:0',
+            'active' => 'boolean',
+            'image' => 'nullable|image|max:2048',
         ]);
 
         if ($request->hasFile('image')) {
@@ -78,13 +78,13 @@ class ProductController extends Controller
     {
         $data = $request->validate([
             'product_category_id' => 'required|exists:product_categories,id',
-            'name'        => 'required|string|max:150',
+            'name' => 'required|string|max:150',
             'description' => 'nullable|string|max:500',
-            'price'       => 'required|numeric|min:0',
-            'stock'       => 'required|integer|min:0',
-            'min_stock'   => 'required|integer|min:0',
-            'active'      => 'boolean',
-            'image'       => 'nullable|image|max:2048',
+            'price' => 'required|numeric|min:0',
+            'stock' => 'required|integer|min:0',
+            'min_stock' => 'required|integer|min:0',
+            'active' => 'boolean',
+            'image' => 'nullable|image|max:2048',
         ]);
 
         if ($request->hasFile('image')) {
@@ -114,7 +114,7 @@ class ProductController extends Controller
 
     public function toggleActive(Product $product): RedirectResponse
     {
-        $product->update(['active' => !$product->active]);
+        $product->update(['active' => ! $product->active]);
 
         return redirect()->back()
             ->with('flash', ['type' => 'success', 'message' => 'Producto actualizado.']);

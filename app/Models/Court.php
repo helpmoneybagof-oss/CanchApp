@@ -27,10 +27,10 @@ class Court extends Model
     {
         return [
             'price_per_hour' => 'decimal:2',
-            'capacity'       => 'integer',
-            'start_hour'     => 'integer',
-            'end_hour'       => 'integer',
-            'active'         => 'boolean',
+            'capacity' => 'integer',
+            'start_hour' => 'integer',
+            'end_hour' => 'integer',
+            'active' => 'boolean',
         ];
     }
 
@@ -54,13 +54,17 @@ class Court extends Model
      */
     public function getScheduleLabelAttribute(): string
     {
-        $fmt = fn(int $h) => \Carbon\Carbon::createFromTime($h)->format('g:i A');
-        return $fmt($this->start_hour) . ' – ' . $fmt($this->end_hour);
+        $fmt = fn (int $h) => \Carbon\Carbon::createFromTime($h)->format('g:i A');
+
+        return $fmt($this->start_hour).' – '.$fmt($this->end_hour);
     }
 
     public function getImageUrlAttribute(): ?string
     {
-        if (!$this->image) return null;
-        return asset('storage/' . $this->image);
+        if (! $this->image) {
+            return null;
+        }
+
+        return asset('storage/'.$this->image);
     }
 }
