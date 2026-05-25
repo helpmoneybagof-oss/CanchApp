@@ -1,0 +1,6 @@
+# Permite que sw-push.js sirva como Service Worker con scope global "/"
+# en lugar del scope por defecto "/build/". Sin esto, push notifications
+# no llegan en ninguna página fuera de /build/.
+<Files "sw-push.js">
+    Header set Service-Worker-Allowed "/"
+</Files>

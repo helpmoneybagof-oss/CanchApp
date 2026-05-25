@@ -2,7 +2,6 @@ import { createInertiaApp, router } from '@inertiajs/vue3';
 import Echo from 'laravel-echo';
 import { resolvePageComponent } from 'laravel-vite-plugin/inertia-helpers';
 import Pusher from 'pusher-js';
-import { registerSW } from 'virtual:pwa-register';
 import type { DefineComponent } from 'vue';
 import { createApp, h } from 'vue';
 
@@ -107,20 +106,23 @@ async function registerDevServiceWorker(): Promise<void> {
     }
 }
 
+async function registerProdServiceWorker(): Promise<void> {
+    if (!('serviceWorker' in navigator)) return;
+    try {
+        // Registro manual con scope explícito '/' porque el SW está en /build/
+        // y por defecto Chrome lo limita al directorio donde vive. El header
+        // Service-Worker-Allowed: / lo permite (configurado en public/build/.htaccess).
+        const reg = await navigator.serviceWorker.register('/build/sw-push.js', { scope: '/' });
+        console.log('[PWA] Service Worker registrado:', reg.scope);
+        handlePostRegister();
+    } catch (error) {
+        console.warn('[PWA] Error al registrar Service Worker de producción, intentando fallback:', error);
+        await registerDevServiceWorker();
+    }
+}
+
 if (import.meta.env.DEV) {
     window.addEventListener('load', registerDevServiceWorker);
 } else {
-    registerSW({
-        immediate: true,
-        onRegisteredSW(scope) {
-            console.log('[PWA] Service Worker registrado:', scope);
-            handlePostRegister();
-        },
-        onRegisterError(error) {
-            // Si el SW de producción no existe (sin build) o falla, caer al SW de dev
-            // para que el push siga funcionando incluso si la app fue servida sin npm run build.
-            console.warn('[PWA] Error al registrar Service Worker de producción, intentando fallback:', error);
-            registerDevServiceWorker();
-        },
-    });
+    window.addEventListener('load', registerProdServiceWorker);
 }
