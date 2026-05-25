@@ -284,10 +284,15 @@ class ReservationController extends Controller
                 ]);
         } catch (\Throwable $e) {
             DB::rollBack();
+            \Illuminate\Support\Facades\Log::error('Error al crear reserva: '.$e->getMessage(), [
+                'user_id'   => $user->id,
+                'slot_ids'  => $slotIds,
+                'exception' => $e,
+            ]);
 
-            return response()->json([
+            return redirect()->back()->withErrors([
                 'message' => 'Ocurrió un error al procesar tu reserva. Intenta nuevamente.',
-            ], 500);
+            ]);
         }
     }
 
