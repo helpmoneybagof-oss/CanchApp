@@ -96,6 +96,22 @@ class ReportController extends Controller
                 'total_spent' => (float) $r->total_spent,
             ]);
 
+        // ── Cancha más reservada ──
+        $topCourt = Reservation::whereBetween('date', [$from, $to])
+            ->whereIn('status', ['confirmed', 'completed'])
+            ->whereNotNull('court_id')
+            ->selectRaw('court_id, COUNT(*) as total')
+            ->groupBy('court_id')
+            ->orderByDesc('total')
+            ->with('court:id,name,type')
+            ->first();
+
+        $mostReservedCourt = $topCourt ? [
+            'name'  => $topCourt->court?->name ?? 'Sin nombre',
+            'type'  => $topCourt->court?->type,
+            'count' => (int) $topCourt->total,
+        ] : null;
+
         // ── Distribución por hora del día (horas pico) ──
         $hourlyRows = Reservation::whereBetween('date', [$from, $to])
             ->whereIn('status', ['confirmed', 'completed'])
@@ -184,6 +200,7 @@ class ReportController extends Controller
             'hourly_distribution' => $hourlyDistribution,
             'payment_breakdown' => $paymentBreakdown,
             'top_clients' => $topClients,
+            'most_reserved_court' => $mostReservedCourt,
             'recent_reservations' => $recentReservations,
         ]);
     }

@@ -9,7 +9,6 @@ import {
     Clock,
     DollarSign,
     Goal,
-    Sparkles,
     TrendingUp,
     Users,
 } from 'lucide-vue-next';
@@ -57,6 +56,7 @@ const props = defineProps<{
     hourly_distribution: HourlyItem[];
     payment_breakdown: PaymentItem[];
     top_clients: TopClient[];
+    most_reserved_court: { name: string; type: string | null; count: number } | null;
     recent_reservations: RecentReservation[];
 }>();
 
@@ -90,12 +90,6 @@ function setRange(range: string) {
 }
 
 // ── Derivados ──
-const avgPerReservation = computed(() =>
-    props.summary.total_reservations > 0
-        ? Math.round(props.summary.total_income / props.summary.total_reservations)
-        : 0
-);
-
 const cancellationRate = computed(() => {
     const total = props.summary.total_reservations + props.summary.cancelled_reservations;
     return total > 0 ? Math.round((props.summary.cancelled_reservations / total) * 100) : 0;
@@ -332,21 +326,29 @@ function fmtMoney(n: number): string {
                     </div>
                 </div>
 
-                <!-- KPI: Promedio -->
+                <!-- KPI: Cancha más reservada -->
                 <div class="relative overflow-hidden rounded-3xl bg-gradient-to-br from-amber-500 via-orange-500 to-pink-500 p-5 text-white shadow-xl shadow-amber-500/30">
                     <div class="absolute -right-6 -top-6 h-32 w-32 rounded-full bg-white/10 blur-2xl"></div>
                     <div class="relative">
                         <div class="mb-3 flex items-center gap-2">
                             <div class="flex h-9 w-9 items-center justify-center rounded-xl bg-white/20 backdrop-blur-sm">
-                                <Sparkles class="h-5 w-5" />
+                                <Goal class="h-5 w-5" />
                             </div>
-                            <span class="text-sm font-medium opacity-90">Ticket promedio</span>
+                            <span class="text-sm font-medium opacity-90">Cancha más reservada</span>
                         </div>
-                        <p class="mb-1 text-3xl font-bold tracking-tight lg:text-4xl">
-                            ${{ avgPerReservation.toLocaleString() }}
+                        <p v-if="most_reserved_court" class="mb-1 text-2xl font-bold tracking-tight lg:text-3xl">
+                            {{ most_reserved_court.name }}
+                        </p>
+                        <p v-else class="mb-1 text-2xl font-bold tracking-tight lg:text-3xl opacity-80">
+                            Sin datos
                         </p>
                         <p class="text-xs opacity-80">
-                            Por reserva confirmada
+                            <template v-if="most_reserved_court">
+                                {{ most_reserved_court.count }} reserva{{ most_reserved_court.count === 1 ? '' : 's' }}<template v-if="most_reserved_court.type"> · {{ most_reserved_court.type }}</template>
+                            </template>
+                            <template v-else>
+                                Aún no hay reservas en el período
+                            </template>
                         </p>
                     </div>
                 </div>
