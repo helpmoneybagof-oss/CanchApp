@@ -1,0 +1,8 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(dir \"c:\\\\Users\\\\DIEGO ALEJANDRO\\\\Desktop\\\\Sintética-Git\\\\CanchApp\")",
+      "Bash(npx vue-tsc *)"
+    ]
+  }
+}

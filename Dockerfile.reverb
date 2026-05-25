@@ -1,0 +1,58 @@
+# ============================================================
+# Dockerfile.reverb — Laravel Reverb WebSocket Server
+# ============================================================
+FROM php:8.2-fpm
+
+# Install system dependencies
+RUN apt-get update && apt-get install -y --no-install-recommends \
+    curl \
+    zip \
+    unzip \
+    default-mysql-client \
+    libzip-dev \
+    libicu-dev \
+    libonig-dev \
+    && docker-php-ext-install -j$(nproc) \
+        pdo_mysql \
+        mbstring \
+        pcntl \
+        bcmath \
+        zip \
+        intl \
+        opcache \
+        sockets \
+    && apt-get clean \
+    && rm -rf /var/lib/apt/lists/*
+
+# Install Composer
+COPY --from=composer:2.7 /usr/bin/composer /usr/bin/composer
+
+WORKDIR /var/www/html
+
+# Copy composer files and install PHP dependencies (no dev)
+COPY composer.json composer.lock ./
+RUN composer install \
+    --no-dev \
+    --no-interaction \
+    --no-scripts \
+    --prefer-dist \
+    --optimize-autoloader
+
+# Copy application source
+COPY . .
+
+# Run composer scripts
+RUN composer dump-autoload --optimize
+
+# Set permissions
+RUN chown -R www-data:www-data /var/www/html/storage \
+    && chmod -R 755 /var/www/html/storage \
+    && chmod -R 755 /var/www/html/bootstrap/cache
+
+COPY docker/entrypoint-reverb.sh /entrypoint-reverb.sh
+RUN chmod +x /entrypoint-reverb.sh
+
+EXPOSE 8080
+
+ENTRYPOINT ["/entrypoint-reverb.sh"]
+CMD ["php", "artisan", "reverb:start", "--host=0.0.0.0", "--port=8080", "--no-interaction"]
