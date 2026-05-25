@@ -129,10 +129,11 @@ class ReportController extends Controller
             ['key' => 'rejected',        'label' => 'Rechazadas',      'count' => (int) ($paymentBreakdownRows['rejected'] ?? 0)],
         ];
 
-        // ── Comparativa con período anterior (mismo tamaño) ──
-        $rangeDays = $fromDate->diffInDays($toDate) + 1;
-        $prevToDate = $fromDate->copy()->subDay();
-        $prevFromDate = $prevToDate->copy()->subDays($rangeDays - 1);
+        // ── Comparativa contra el mismo rango de días del mes anterior ──
+        // Si voy del 1 al 25 de mayo, comparo contra el 1-25 de abril
+        // (no contra los 25 días inmediatamente previos que cruzarían mes).
+        $prevFromDate = $fromDate->copy()->subMonthNoOverflow();
+        $prevToDate = $toDate->copy()->subMonthNoOverflow();
         $prevIncome = (float) Reservation::whereBetween('date', [$prevFromDate->toDateString(), $prevToDate->toDateString()])
             ->whereIn('status', ['confirmed', 'completed'])
             ->sum('total_price');
