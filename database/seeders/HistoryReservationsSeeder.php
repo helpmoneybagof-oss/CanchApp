@@ -119,7 +119,7 @@ class HistoryReservationsSeeder extends Seeder
 
                 $courtPrice = $chosen->sum(fn ($s) => (float) $s->price);
                 $client = $clients->random();
-                [$status, $payment] = $this->pickStatusAndPayment();
+                [$status, $payment] = $this->pickStatusAndPayment($date);
 
                 try {
                     DB::beginTransaction();
@@ -180,26 +180,38 @@ class HistoryReservationsSeeder extends Seeder
     }
 
     /**
-     * Distribución realista de estados:
-     *  - 62% confirmed + paid
-     *  - 16% completed + paid (partidos ya jugados)
-     *  - 10% confirmed + unpaid (pago pendiente)
-     *  -  7% confirmed + payment_review (comprobante enviado)
-     *  -  5% cancelled + unpaid
+     * Decide el estado y el estado de pago según la fecha de la reserva.
+     *
+     * Lógica:
+     *  - Fechas pasadas: el partido ya pasó. Nadie queda "esperando pago"
+     *    porque esos pagos jamás llegarán. Solo 2 desenlaces:
+     *      · 85%  → completed + paid (jugó y pagó)
+     *      · 15%  → cancelled + unpaid (no pagó ni jugó, se cayó)
+     *  - Hoy (día en curso): aún pueden estar en flujo, por eso hay
+     *    variedad incluyendo pago pendiente y comprobante en revisión.
      */
-    private function pickStatusAndPayment(): array
+    private function pickStatusAndPayment(Carbon $date): array
     {
+        $isPast = $date->lt(Carbon::today());
+
         $r = rand(1, 100);
-        if ($r <= 62) {
+
+        if ($isPast) {
+            if ($r <= 85) {
+                return ['completed', 'paid'];
+            }
+
+            return ['cancelled', 'unpaid'];
+        }
+
+        // Hoy: flujo activo, todos los estados son posibles
+        if ($r <= 50) {
             return ['confirmed', 'paid'];
         }
-        if ($r <= 78) {
-            return ['completed', 'paid'];
-        }
-        if ($r <= 88) {
+        if ($r <= 70) {
             return ['confirmed', 'unpaid'];
         }
-        if ($r <= 95) {
+        if ($r <= 90) {
             return ['confirmed', 'payment_review'];
         }
 
