@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import { Head, router, usePage } from '@inertiajs/vue3';
-import { CalendarDays, CheckCircle, Clock, CreditCard, ShoppingBag } from 'lucide-vue-next';
+import axios from 'axios';
+import { CalendarDays, CheckCircle, Clock, CreditCard, ShoppingBag, X } from 'lucide-vue-next';
 import { onMounted, ref } from 'vue';
 import { useToast } from '@/composables/useToast';
 import AppClientLayout from '@/layouts/AppClientLayout.vue';
@@ -72,8 +73,18 @@ function confirm() {
     );
 }
 
-function goBack() {
-    router.visit('/cart');
+const cancelling = ref(false);
+
+async function cancelReservation() {
+    if (!window.confirm('¿Cancelar esta reserva? Liberarás el horario para otros.')) return;
+    cancelling.value = true;
+    try {
+        await axios.delete('/cart');
+        router.visit('/calendar');
+    } catch {
+        toast.error('No se pudo cancelar. Intenta de nuevo.', 'Error');
+        cancelling.value = false;
+    }
 }
 </script>
 
@@ -121,9 +132,9 @@ function goBack() {
                     <CalendarDays class="mb-3 h-12 w-12 text-muted-foreground/40" />
                     <p class="font-semibold text-foreground">No hay horarios seleccionados</p>
                     <p class="mb-4 text-sm text-muted-foreground">Selecciona horarios en el calendario primero.</p>
-                    <button @click="goBack"
+                    <button @click="router.visit('/calendar')"
                         class="rounded-xl bg-primary px-5 py-2.5 text-sm font-semibold text-primary-foreground">
-                        Ir al carrito
+                        Ir al calendario
                     </button>
                 </div>
 
@@ -210,11 +221,12 @@ function goBack() {
 
                     <!-- Botones -->
                     <div class="flex gap-3">
-                        <button @click="goBack"
-                            class="flex-1 rounded-2xl border border-border py-3 text-sm font-medium text-foreground transition hover:bg-muted">
-                            Volver al carrito
+                        <button @click="cancelReservation" :disabled="cancelling || submitting"
+                            class="flex flex-1 items-center justify-center gap-2 rounded-2xl border border-red-200 bg-red-50 py-3 text-sm font-semibold text-red-600 transition hover:bg-red-100 disabled:opacity-60 dark:border-red-800 dark:bg-red-900/20 dark:text-red-400">
+                            <X class="h-4 w-4" />
+                            {{ cancelling ? 'Cancelando...' : 'Cancelar' }}
                         </button>
-                        <button @click="confirm" :disabled="submitting"
+                        <button @click="confirm" :disabled="submitting || cancelling"
                             class="flex flex-1 items-center justify-center gap-2 rounded-2xl bg-primary py-3 text-sm font-bold text-primary-foreground shadow transition hover:bg-primary/90 active:scale-95 disabled:opacity-60">
                             <CheckCircle class="h-4 w-4" />
                             {{ submitting ? 'Confirmando...' : 'Confirmar reserva' }}
